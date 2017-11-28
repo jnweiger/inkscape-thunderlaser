@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Thunderlaser RUIDA</_name>
+  <id>com.github.jnweiger.inskscape-thunderlaser</id>
+  <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <dependency type="executable" location="extensions">thunderlaser.py</dependency>
+  <param name="active-tab" type="notebook">
+    <page name='thunderlaser' _gui-text='Thunderlaser'>
+
+      <param name="settings_help" type="description">
+
+CUT                                   Speed    MinPower   MaxPower
+                                           [mm/s]      [ % ]           [ % ]
+Acrylic 3mm                          25          55              70
+Birch Plywood 3mm           40          50               65
+Birch Plywood 4mm           30          50               65
+Birch Plywood 5mm           20          50               65
+Cardboard 1mm (FinnP) 300          26               65
+Cardboard 3mm (FinnP)   80          50               70
+PU foam 10mm                 100          50               70
+
+
+MARK                              Speed     MinPower    MaxPower
+                                          [mm/s]       [ % ]             [ % ]
+Birch Plywood                  1000           8                 25
+Cardboard (FinnPappe) 1000           7                 18
+
+      </param>
+
+      <param name="speed" type="enum" _gui-text="Speed [mm/s]:    ">
+        <item value="15">15 mm/s</item>
+        <item value="20">20 mm/s</item>
+        <item value="25">25 mm/s</item>
+        <item value="30">30 mm/s</item>
+        <item value="40">40 mm/s</item>
+        <item value="60">60 mm/s</item>
+        <item value="80">80 mm/s</item>
+        <item value="100">100 mm/s</item>
+        <item value="150">150 mm/s</item>
+        <item value="200">200 mm/s</item>
+        <item value="300">300 mm/s</item>
+        <item value="500">500 mm/s</item>
+        <item value="750">750 mm/s</item>
+        <item value="1000">1000 mm/s</item>
+      </param>
+      <param name="minpower" type="enum" _gui-text="MinPower [%]:    ">
+        <item value="7">7 %</item>
+        <item value="8">8 %</item>
+        <item value="10">10 %</item>
+        <item value="15">15 %</item>
+        <item value="20">20 %</item>
+        <item value="26">26 %</item>
+        <item value="38">38 %</item>
+        <item value="50">50 %</item>
+        <item value="55">55 %</item>
+        <item value="60">60 %</item>
+      </param>
+      <param name="maxpower" type="enum" _gui-text="MaxPower [%]:   ">
+        <item value="18">18 %</item>
+        <item value="25">25 %</item>
+        <item value="45">45 %</item>
+        <item value="65">65 %</item>
+        <item value="70">70 %</item>
+        <item value="75">75 %</item>
+      </param>
+      <param name="reference" type="description">
+See also: http://wiki.fablab-nuernberg.de/w/Nova_35
+      </param>
+    </page>
+
+    <page name='advanced' _gui-text='Advanced'>
+      <param name="maxwidth"  type="float" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
+      <param name="maxheight" type="float" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
+
+      <_param name="spacer" type="description"><!-- --></_param>
+
+      <param name="bbox" type="boolean" _gui-text="Cut bounding box only">false</param>
+      <param name="bbox_help" type="description">Used for a quick test, or a clean frame cut afterwards.</param>
+
+      <_param name="spacer" type="description"><!-- --></_param>
+
+      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send to /tmp/thunderlaser.rd">false</param>
+      <param name="dummy_help" type="description">Used for debugging and developent only!</param>
+    </page>
+
+    <page name='about' _gui-text='About '>
+      <param name="about_who" type="description">inkscape-thunderlaser extension from https://github.com/jnweiger/inkscape-thunderlaser by Jürgen Weigert [juewei@fabmail.org] and contributors</param>
+      <!-- Keep in sync with thunderlaser.py line 78 __version__ = ... -->
+
+      <_param name="spacer" type="description"><!-- --></_param>
+
+      <param name="about_version" type="description">Version 0.1</param>
+    </page>
+  </param>
+
+  <effect needs-live-preview="false" >
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Lasercut Path"/>
+    </effects-menu>
+  </effect>
+  
+  <script>
+      <command reldir="extensions" interpreter="python">thunderlaser.py</command>
+  </script>
+</inkscape-extension>

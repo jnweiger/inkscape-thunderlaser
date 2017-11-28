@@ -1,0 +1,13 @@
+OPTIONS:="lastrule"
+OPTIONS:="last_rule"
+
+# Nov 24 21:34:56 usb 2-1: New USB device found, idVendor=0403, idProduct=6001
+# Nov 24 21:34:56 usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+# Nov 24 21:34:56 usb 2-1: Product: FT245R USB FIFO
+# Nov 24 21:34:56 usb 2-1: Manufacturer: FTDI
+# Nov 24 21:34:56 usb 2-1: SerialNumber: A904TU15
+# Nov 24 21:34:57 usb 2-1: FTDI USB Serial Device converter now attached to ttyUSB0
+
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", OWNER="root", GROUP="lp", MODE="666", ENV{thunderlaser_nova35}="yes", OPTIONS="last_rule"
+
+ENV{thunderlaser_nova35}=="yes", RUN="/lib/udev/thunderlaser-udev-notify.sh", OPTIONS:="lastrule"
