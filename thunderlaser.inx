@@ -73,6 +73,7 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
     <page name='advanced' _gui-text='Advanced'>
       <param name="smoothness" type="float" min="0.0001" max="5" _gui-text="Smoothing">0.2</param>
       <_param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
+      </_param>
 
       <_param name="spacer" type="description"><!-- --></_param>
 
@@ -82,12 +83,12 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
       <_param name="spacer" type="description"><!-- --></_param>
 
       <param name="bbox_only" type="boolean" _gui-text="Cut bounding box only">false</param>
-      <param name="bbox_only_help" type="description">Used for a quick test, or a clean frame cut afterwards.</param>
+      <_param name="bbox_only_help" type="description">Used for a quick test, or a clean frame cut afterwards.</_param>
 
       <_param name="spacer" type="description"><!-- --></_param>
 
       <param name="dummy"    type="boolean" _gui-text="Dummy device: Send to /tmp/thunderlaser.rd">false</param>
-      <param name="dummy_help" type="description">Used for debugging and developent only!</param>
+      <_param name="dummy_help" type="description">Used for debugging and developent only!</_param>
     </page>
 
     <page name='about' _gui-text='About '>

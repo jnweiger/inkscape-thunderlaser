@@ -8,6 +8,8 @@
 # with almost identical features, but different inmplementation details. The version used here is derived from 
 # inkscape-paths2openscad.
 #
+# python2 compatibility:
+from __future__ import print_function
 
 import sys
 import inkex
@@ -19,15 +21,17 @@ import bezmisc
 import re
 import gettext
 
-# python2 compatibility:
-from __future__ import print_function
+DEFAULT_WIDTH = 100
+DEFAULT_HEIGHT = 100
+
+# python2 compatibility. Inkscape runs us with python2!
 try:
         bytes("foo")
-        def bstr(str):
-                return bytes(str)
+        def bstr(thing):
+                return bytes(thing)
 except:
-        def bstr(str):
-                return bytes(str, encoding='ASCII')
+        def bstr(thing):
+                return bytes(repr(thing), encoding='ASCII')
 
 
 def subdivideCubicPath(sp, flat, i=1):
@@ -66,6 +70,33 @@ def subdivideCubicPath(sp, flat, i=1):
         p = [one[2], one[3], two[1]]
         sp[i:1] = [p]
 
+def parseLengthWithUnits(str, default_unit='px'):
+    '''
+    Parse an SVG value which may or may not have units attached
+    This version is greatly simplified in that it only allows: no units,
+    units of px, and units of %.  Everything else, it returns None for.
+    There is a more general routine to consider in scour.py if more
+    generality is ever needed.
+    With inkscape 0.91 we need other units too: e.g. svg:width="400mm"
+    '''
+
+    u = default_unit
+    s = str.strip()
+    if s[-2:] in ('px', 'pt', 'pc', 'mm', 'cm', 'in', 'ft'):
+        u = s[-2:]
+        s = s[:-2]
+    elif s[-1:] in ('m', '%'):
+        u = s[-1:]
+        s = s[:-1]
+
+    try:
+        v = float(s)
+    except:
+        return None, None
+
+    return v, u
+
+
 
 class ThunderLaser(inkex.Effect):
     def __init__(self):
@@ -103,7 +134,7 @@ class ThunderLaser(inkex.Effect):
             help='Width of laser area [mm]. Default: 900 mm')
 
         self.OptionParser.add_option(
-            "--bbox-only", action="store", type="inkbool", dest="bbox_only", default=False,
+            "--bbox_only", action="store", type="inkbool", dest="bbox_only", default=False,
             help="Cut bounding box only. Default: False")
 
         self.OptionParser.add_option(
@@ -113,8 +144,8 @@ class ThunderLaser(inkex.Effect):
 
         self.dpi = 90.0                # factored out for inkscape-0.92
         self.px_used = False           # raw px unit depends on correct dpi.
-        self.cx = float(DEFAULT_WIDTH)  / 2.0
-        self.cy = float(DEFAULT_HEIGHT) / 2.0
+        self.cx = 0
+        self.cy = 0
         self.xmin, self.xmax = (1.0E70, -1.0E70)
         self.ymin, self.ymax = (1.0E70, -1.0E70)
 
@@ -673,11 +704,12 @@ class ThunderLaser(inkex.Effect):
                 inkex.errormsg('Warning: rdcam generator not implemented. Please activate Dummy output.')
         else:
                 fd = open('/tmp/thunderlaser.rd', 'wb')
-                fd.write(b"bbox: " + bstr(repr([self.xmin, self.ymin, self.xmax, self.ymax])) + b"\n")
-                fd.write(b"speed: " + bstr(repr(self.options.speed)) + b" mm/s\n")
-                fd.write(b"minpow: " + bstr(repr(self.options.minpower)) + b" %\n")
-                fd.write(b"maxpow: " + bstr(repr(self.options.maxpower)) + b" %\n")
-                fd.write(b"paths: \n" + bstr(repr(self.paths)) + b"\n")
+                fd.write(b"bbox: " + bstr([self.xmin, self.ymin, self.xmax, self.ymax]) + b"\n")
+                fd.write(b"speed: " + bstr(self.options.speed) + b" mm/s\n")
+                fd.write(b"minpow: " + bstr(self.options.minpower) + b" %\n")
+                fd.write(b"maxpow: " + bstr(self.options.maxpower) + b" %\n")
+                fd.write(b"unit: " + bstr(self.dpi) + b" dpi\n")
+                fd.write(b"paths: \n" + bstr(self.paths) + b"\n")
                 fd.close()
                 print("/tmp/thunderlaser.rd written.", file=sys.stderr)
 
