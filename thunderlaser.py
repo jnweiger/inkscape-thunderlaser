@@ -20,6 +20,7 @@ import cspsubdiv
 import bezmisc
 import re
 import gettext
+import json
 
 DEFAULT_WIDTH = 100
 DEFAULT_HEIGHT = 100
@@ -109,12 +110,12 @@ class ThunderLaser(inkex.Effect):
             help='Laser movement speed [mm/s]. Default: 30 mm/s')
 
         self.OptionParser.add_option(
-            '--maxpower', dest='maxpower', type='string', default='70', action='store',
-            help='Maximum laser power [%]. Default: 70 %')
+            '--maxpower1', dest='maxpower1', type='string', default='70', action='store',
+            help='Laser1 maximum power [%]. Default: 70 %')
 
         self.OptionParser.add_option(
-            '--minpower', dest='minpower', type='string', default='50', action='store',
-            help='Maximum laser power [%]. Default: 50 %')
+            '--minpower1', dest='minpower1', type='string', default='50', action='store',
+            help='Laser1 minimum power [%]. Default: 50 %')
 
         self.OptionParser.add_option(
             "--tab",  # NOTE: value is not used.
@@ -124,6 +125,10 @@ class ThunderLaser(inkex.Effect):
         self.OptionParser.add_option(
             '--smoothness', dest='smoothness', type='float', default=float(0.2), action='store',
             help='Curve smoothing (less for more [0.0001 .. 5]). Default: 0.2')
+
+        self.OptionParser.add_option(
+            '--freq1', dest='freq1', type='float', default=float(20.0), action='store',
+            help='Laser1 frequency [kHz]. Default: 20.0')
 
         self.OptionParser.add_option(
             '--maxheight', dest='maxheight', type='string', default='600', action='store',
@@ -703,15 +708,18 @@ class ThunderLaser(inkex.Effect):
         if not self.options.dummy:
                 inkex.errormsg('Warning: rdcam generator not implemented. Please activate Dummy output.')
         else:
-                fd = open('/tmp/thunderlaser.rd', 'wb')
-                fd.write(b"bbox: " + bstr([self.xmin, self.ymin, self.xmax, self.ymax]) + b"\n")
-                fd.write(b"speed: " + bstr(self.options.speed) + b" mm/s\n")
-                fd.write(b"minpow: " + bstr(self.options.minpower) + b" %\n")
-                fd.write(b"maxpow: " + bstr(self.options.maxpower) + b" %\n")
-                fd.write(b"unit: " + bstr(self.dpi) + b" dpi\n")
-                fd.write(b"paths: \n" + bstr(self.paths) + b"\n")
+                fd = open('/tmp/thunderlaser.json', 'w')
+                json.dump({
+                        'bbox': [self.xmin, self.ymin, self.xmax, self.ymax],
+                        'speed': self.options.speed, 'speed_unit': 'mm/s',
+                        'minpower1': self.options.minpower1, 'minpower1_unit': '%',
+                        'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
+                        'resolution': self.dpi, 'resolution_unit': 'dpi',
+                        'freq1': self.options.freq1, 'freq1_unit': 'kHz',
+                        'paths': repr(self.paths)
+                        }, fd, indent=4, encoding='utf-8')
                 fd.close()
-                print("/tmp/thunderlaser.rd written.", file=sys.stderr)
+                print("/tmp/thunderlaser.json written.", file=sys.stderr)
 
 
 if __name__ == '__main__':

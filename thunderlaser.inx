@@ -45,7 +45,7 @@ Cardboard (FinnPappe) 1000           7                 18
         <item value="750">750 mm/s</item>
         <item value="1000">1000 mm/s</item>
       </param>
-      <param name="minpower" type="enum" _gui-text="MinPower [%]:    ">
+      <param name="minpower1" type="enum" _gui-text="MinPower [%]:    ">
         <item value="7">7 %</item>
         <item value="8">8 %</item>
         <item value="10">10 %</item>
@@ -57,7 +57,7 @@ Cardboard (FinnPappe) 1000           7                 18
         <item value="55">55 %</item>
         <item value="60">60 %</item>
       </param>
-      <param name="maxpower" type="enum" _gui-text="MaxPower [%]:   ">
+      <param name="maxpower1" type="enum" _gui-text="MaxPower [%]:   ">
         <item value="18">18 %</item>
         <item value="25">25 %</item>
         <item value="45">45 %</item>
@@ -75,6 +75,9 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
       <_param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
       </_param>
 
+      <param name="freq1" type="float" min="0" max="1000" _gui-text="Frequency [kHz]">20.0</param>
+      <_param name="freq1_help" type="description">Laser1 frequency. Unused?</_param>
+
       <_param name="spacer" type="description"><!-- --></_param>
 
       <param name="maxwidth"  type="int" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
@@ -87,7 +90,7 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
 
       <_param name="spacer" type="description"><!-- --></_param>
 
-      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send to /tmp/thunderlaser.rd">false</param>
+      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send to /tmp/thunderlaser.json">false</param>
       <_param name="dummy_help" type="description">Used for debugging and developent only!</_param>
     </page>
 
