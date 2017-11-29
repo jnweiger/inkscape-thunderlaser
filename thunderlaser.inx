@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+<!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
   <_name>Thunderlaser RUIDA</_name>
   <id>com.github.jnweiger.inskscape-thunderlaser</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
-  <param name="active-tab" type="notebook">
+  <param name="tab" type="notebook">
     <page name='thunderlaser' _gui-text='Thunderlaser'>
 
       <param name="settings_help" type="description">
@@ -70,13 +71,18 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
     </page>
 
     <page name='advanced' _gui-text='Advanced'>
-      <param name="maxwidth"  type="float" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
-      <param name="maxheight" type="float" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
+      <param name="smoothness" type="float" min="0.0001" max="5" _gui-text="Smoothing">0.2</param>
+      <_param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
 
       <_param name="spacer" type="description"><!-- --></_param>
 
-      <param name="bbox" type="boolean" _gui-text="Cut bounding box only">false</param>
-      <param name="bbox_help" type="description">Used for a quick test, or a clean frame cut afterwards.</param>
+      <param name="maxwidth"  type="int" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
+      <param name="maxheight" type="int" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
+
+      <_param name="spacer" type="description"><!-- --></_param>
+
+      <param name="bbox_only" type="boolean" _gui-text="Cut bounding box only">false</param>
+      <param name="bbox_only_help" type="description">Used for a quick test, or a clean frame cut afterwards.</param>
 
       <_param name="spacer" type="description"><!-- --></_param>
 
