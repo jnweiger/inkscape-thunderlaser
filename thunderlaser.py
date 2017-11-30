@@ -467,6 +467,12 @@ class ThunderLaser(inkex.Effect):
                 # I.e., explicitly draw three sides of the rectangle and the
                 # fourth side implicitly
 
+                if node.get('rx') or node.get('ry'):
+                    if 'rounded_rect' not in self.warnings:
+                        self.warnings['rounded_rect'] = 1
+                        inkex.errormsg(gettext.gettext(
+                            'Warning: rounded corners of rectangle ignored. Please convert object <%s> to path and try again' % node.get('id')))
+
                 # Create a path with the outline of the rectangle
                 x = float(node.get('x'))
                 y = float(node.get('y'))

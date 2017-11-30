@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="3779.5276"
-   height="1122.5197"
-   viewBox="0 0 2000 593.99998"
+   width="1056"
+   height="816"
+   viewBox="0 0 1056 816"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.1 unknown"
@@ -26,23 +26,26 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.5067531"
-     inkscape:cx="235.71428"
-     inkscape:cy="343.11571"
-     inkscape:document-units="mm"
+     inkscape:zoom="3.47452"
+     inkscape:cx="84.824641"
+     inkscape:cy="422.17172"
+     inkscape:document-units="px"
      inkscape:current-layer="g4491"
      showgrid="true"
      scale-x="1e-05"
      units="px"
      inkscape:window-width="1600"
      inkscape:window-height="843"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-x="1950"
+     inkscape:window-y="311"
      inkscape:window-maximized="1"
      inkscape:snap-global="true">
     <inkscape:grid
        type="xygrid"
-       id="grid4492" />
+       id="grid4492"
+       units="px"
+       spacingx="1"
+       spacingy="1" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -52,23 +55,41 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Ebene 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(0,-151.70079)">
     <g
        id="g4491">
       <rect
-         y="382.33331"
+         y="387.70078"
          x="0"
-         height="211.66667"
-         width="158.75"
+         height="200.00003"
+         width="150"
          id="rect4485"
-         style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:#ff0000;stroke-width:0.27818844;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:#ff0000;stroke-width:0.2628552;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <path
          transform="matrix(0.45820866,0.06525491,-0.05968602,0.41910489,-8.257723,371.61187)"
          inkscape:transform-center-y="-0.62841373"
@@ -116,11 +137,19 @@
          y="0"
          x="0" />
       <path
-         style="fill:none;stroke:#000000;stroke-width:0.52916664px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 110,393.99998 30,30 m -30,0 30,-30"
+         style="fill:none;stroke:#000000;stroke-width:0.44097221px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 110,397.70079 25,25 m -25,0 25,-25"
          id="path4490"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
+      <rect
+         style="opacity:1;fill:#ff00ff;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.20906056;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4494"
+         width="50"
+         height="25.000013"
+         x="5"
+         y="392.70078"
+         ry="5.0000138" />
     </g>
   </g>
 </svg>
