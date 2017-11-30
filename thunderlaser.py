@@ -471,7 +471,7 @@ class ThunderLaser(inkex.Effect):
                 x = float(node.get('x'))
                 y = float(node.get('y'))
                 if (not x) or (not y):
-                    continue
+                    pass
                 w = float(node.get('width', '0'))
                 h = float(node.get('height', '0'))
                 a = []
@@ -705,18 +705,30 @@ class ThunderLaser(inkex.Effect):
         self.cx = self.xmin + (self.xmax - self.xmin) / 2.0
         self.cy = self.ymin + (self.ymax - self.ymin) / 2.0
 
+        # First simplification: remove the bounding boxes from paths. Replace the object with its id.
+        # from {<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>: [[[[207, 744], [264, 801]], [207, 264, 744, 801]], [[[207, 801], [264, 744]], [207, 264, 744, 801]]]}
+        # to   {"path4490": [[[207, 744], [264, 801]], [[207, 801], [264, 744]]] }
+        paths_dict = {}
+        for k in self.paths:
+                kk = k.get('id', str(k))
+                ll = []
+                for e in self.paths[k]:
+                        ll.append(e[0])
+                paths_dict[kk] = ll
+        self.paths = paths_dict
+
         if not self.options.dummy:
                 inkex.errormsg('Warning: rdcam generator not implemented. Please activate Dummy output.')
         else:
                 fd = open('/tmp/thunderlaser.json', 'w')
                 json.dump({
-                        'bbox': [self.xmin, self.ymin, self.xmax, self.ymax],
+                        'bbox': [self.xmin, self.xmax, self.ymin, self.ymax],
                         'speed': self.options.speed, 'speed_unit': 'mm/s',
                         'minpower1': self.options.minpower1, 'minpower1_unit': '%',
                         'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
                         'resolution': self.dpi, 'resolution_unit': 'dpi',
                         'freq1': self.options.freq1, 'freq1_unit': 'kHz',
-                        'paths': repr(self.paths)
+                        'paths': self.paths
                         }, fd, indent=4, encoding='utf-8')
                 fd.close()
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
