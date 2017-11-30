@@ -721,7 +721,6 @@ class ThunderLaser(inkex.Effect):
                 fd.close()
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
 
-
 if __name__ == '__main__':
     e = ThunderLaser()
     e.affect()
