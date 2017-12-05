@@ -1,0 +1,3 @@
+[submodule "src/ruida"]
+	path = src/ruida
+	url = https://github.com/jnweiger/ruida.git
