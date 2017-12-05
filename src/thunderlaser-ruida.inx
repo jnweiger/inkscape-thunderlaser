@@ -7,7 +7,7 @@
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">inksvg.py</dependency>
   <dependency type="executable" location="extensions">ruida.py</dependency>
-  <dependency type="executable" location="extensions">ruida-laser.py</dependency>
+  <dependency type="executable" location="extensions">thunderlaser-ruida.py</dependency>
   <param name="tab" type="notebook">
     <page name='thunderlaser' _gui-text='Thunderlaser'>
 
@@ -119,6 +119,6 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
   </effect>
   
   <script>
-      <command reldir="extensions" interpreter="python">ruida-laser.py</command>
+      <command reldir="extensions" interpreter="python">thunderlaser-ruida.py</command>
   </script>
 </inkscape-extension>

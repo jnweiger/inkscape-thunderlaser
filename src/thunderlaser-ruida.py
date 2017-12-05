@@ -11,13 +11,15 @@
 # python2 compatibility:
 from __future__ import print_function
 
+import sys
+sys.path.append('/usr/share/inkscape/extensions/')
+
 ## INLINE_BLOCK_START
 # for easier distribution, our Makefile can inline these imports when generating thunderlaser.py from src/rudia-laser.py
 from ruida import Ruida
 from inksvg import InkSvg
 ## INLINE_BLOCK_END
 
-import sys
 import json
 import inkex
 import gettext
@@ -30,13 +32,16 @@ if sys.version_info.major < 3:
 
 
 class ThunderLaser(inkex.Effect):
+
+    __version__ = '0.1'
+
     def __init__(self):
         inkex.localize()    # does not help for localizing my *.inx file
         inkex.Effect.__init__(self)
 
         self.OptionParser.add_option(
-            '--device', dest='device', type='string', default='/dev/ttyUSB0', action='store',
-            help='Output device or file name. Default: /dev/ttyUSB0')
+            '--device', dest='devicelist', type='string', default='/dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd', action='store',
+            help='Output device or file name to use. A comma-separated list. Default: /dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd')
 
         self.OptionParser.add_option(
             '--speed', dest='speed', type='string', default='30', action='store',
@@ -79,11 +84,20 @@ class ThunderLaser(inkex.Effect):
             "--dummy", action="store", type="inkbool", dest="dummy", default=False,
             help="Dummy device: Send to /tmp/thunderlaser.rd . Default: False")
 
-    def effect(self):
+        self.OptionParser.add_option(
+            "--version", action="store", type="inkbool", dest="version", default=False,
+            help="Print version number: v"+self.__version__)
 
+
+    def effect(self):
         svg = InkSvg(document=self.document, smoothness=float(self.options.smoothness))
+
         # Viewbox handling
         svg.handleViewBox()
+
+        if self.options.version:
+            print("inkscape extension thunderlaser V"+self.__version__)
+            sys.exit(0)
 
         # First traverse the document (or selected items), reducing
         # everything to line segments.  If working on a selection,
@@ -129,10 +143,10 @@ class ThunderLaser(inkex.Effect):
 
         for paths in paths_dict.values():
                 for path in paths:
+                        newpath = []
                         for point in path:
-                                point[0] = (point[0]-xoff) * dpi2mm
-                                point[1] = (point[1]-yoff) * dpi2mm
-                paths_list.extend(paths)
+                                newpath.append([(point[0]-xoff) * dpi2mm, (point[1]-yoff) * dpi2mm])
+                        paths_list.append(newpath)
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
         if self.options.dummy:
@@ -154,8 +168,18 @@ class ThunderLaser(inkex.Effect):
                 rd.set(speed=int(self.options.speed))
                 rd.set(power=[int(self.options.minpower1),int(self.options.maxpower1)])
                 rd.set(paths=paths_list, bbox=bbox)
-                with open(self.options.device, 'wb') as fd: rd.write(fd)
-                print(self.options.device+" written.", file=sys.stderr)
+                device_used = None
+                for device in self.options.devicelist.split(','):
+                    try:
+                        with open(device, 'wb') as fd:
+                            rd.write(fd)
+                        print(device+" written.", file=sys.stderr)
+                        device_used = device
+                        break
+                    except:
+                        pass
+                if device_used is None:
+                        inkex.errormsg(gettext.gettext('Warning: no usable devices in device list: '+self.options.devicelist))
 
 
 if __name__ == '__main__':

@@ -25,14 +25,14 @@ check:
 	test/test.sh
 
 thunderlaser.inx:
-	sed -e 's/>ruida\-laser\.py</>thunderlaser.py</g' < src/ruida-laser.inx > $@
-	sed -e '/inksvg\.py<.dependency/d' -e '/ruida\.py<.dependency/d' -i $@
+	sed -e 's/>thunderlaser\-ruida\.py</>thunderlaser.py</g' < src/thunderlaser-ruida.inx > $@
+	sed -e '/\(ruida\|inksvg\)\.py<.dependency/d' -i $@
 
 thunderlaser.py:
-	sed >  $@ -e '/INLINE_BLOCK_START/,$$d' < src/ruida-laser.py
+	sed >  $@ -e '/INLINE_BLOCK_START/,$$d' < src/thunderlaser-ruida.py
 	sed >> $@ -e '/if __name__ ==/,$$d' < src/inksvg.py
 	sed >> $@ -e '/if __name__ ==/,$$d' < src/ruida.py
-	sed >> $@ -e '1,/INLINE_BLOCK_END/d' < src/ruida-laser.py
+	sed >> $@ -e '1,/INLINE_BLOCK_END/d' < src/thunderlaser-ruida.py
 
 #install is used by dist.
 install:
@@ -49,7 +49,7 @@ install:
 tar_dist_classic: clean
 	name=$(DISTNAME)-$(VERS); echo "$$name"; echo; \
 	tar jcvf $$name.tar.bz2 $(EXCL) --transform="s,^,$$name/," $(ALL)
-	grep about_version ./sendto_silhouette.inx 
+	grep about_version ./thunderlaser.inx
 	@echo version should be $(VERS)
 
 tar_dist:

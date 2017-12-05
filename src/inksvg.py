@@ -407,12 +407,6 @@ class InkSvg():
                 # I.e., explicitly draw three sides of the rectangle and the
                 # fourth side implicitly
 
-                if node.get('rx') or node.get('ry'):
-                    if 'rounded_rect' not in self.warnings:
-                        self.warnings['rounded_rect'] = 1
-                        inkex.errormsg(gettext.gettext(
-                            'Warning: rounded corners of rectangle ignored. Please convert object <%s> to path and try again' % node.get('id')))
-
                 # Create a path with the outline of the rectangle
                 x = float(node.get('x'))
                 y = float(node.get('y'))
@@ -420,12 +414,27 @@ class InkSvg():
                     pass
                 w = float(node.get('width', '0'))
                 h = float(node.get('height', '0'))
+                rx = float(node.get('rx', '0'))
+                ry = float(node.get('ry', '0'))
                 a = []
-                a.append(['M ', [x, y]])
-                a.append([' l ', [w, 0]])
-                a.append([' l ', [0, h]])
-                a.append([' l ', [-w, 0]])
-                a.append([' Z', []])
+
+                if rx > 0.0 or ry > 0.0:
+                    if ry < 0.0000001: ry = rx
+                    if 'rounded_rect' not in self.warnings:
+                        self.warnings['rounded_rect'] = 1
+                        inkex.errormsg(gettext.gettext(
+                            'Warning: rounded corners of rectangle ignored. Please convert object <%s> to path and try again' % node.get('id')))
+                    a.append(['M ', [x, y]])
+                    a.append([' l ', [w, 0]])
+                    a.append([' l ', [0, h]])
+                    a.append([' l ', [-w, 0]])
+                    a.append([' Z', []])
+                else:
+                    a.append(['M ', [x, y]])
+                    a.append([' l ', [w, 0]])
+                    a.append([' l ', [0, h]])
+                    a.append([' l ', [-w, 0]])
+                    a.append([' Z', []])
                 self.getPathVertices(simplepath.formatPath(a), node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':

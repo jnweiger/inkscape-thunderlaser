@@ -42,7 +42,7 @@ def motion_notify(win, ev, c):
 
 win = gtk.Window()
 canvas = Canvas(units='mm', scale=1)
-canvas.set_size_request(1000, 400)
+canvas.set_size_request(1000, 600)
 root = canvas.get_root_item()
 
 win.connect("destroy", lambda x: gtk.main_quit())
@@ -75,7 +75,6 @@ def show_poly(canvas, path = [(0,0),(20,0),(10,20),(0,0)], xoff=0, yoff=0, idx=1
     text.scale(.25,.25)
 
 data = json.load(open(sys.argv[1]))
-print data
 idx = 1
 for path in data['paths']:
   show_poly(root, path=path, xoff=30, yoff=50, idx=idx)
