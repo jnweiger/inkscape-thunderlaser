@@ -4,8 +4,8 @@
 #
 # This is an Inkscape extension to output paths in rdcam format.
 # recursivelyTraverseSvg() is originally from eggbot. Thank!
-# inkscape-paths2openscad and inkscape-silhouette contain copies of recursivelyTraverseSvg() 
-# with almost identical features, but different inmplementation details. The version used here is derived from 
+# inkscape-paths2openscad and inkscape-silhouette contain copies of recursivelyTraverseSvg()
+# with almost identical features, but different inmplementation details. The version used here is derived from
 # inkscape-paths2openscad.
 #
 # python2 compatibility:
@@ -17,6 +17,7 @@ from inksvg import InkSvg
 import sys
 import json
 import inkex
+import gettext
 
 
 # python2 compatibility. Inkscape runs us with python2!
@@ -92,9 +93,12 @@ class ThunderLaser(inkex.Effect):
             svg.recursivelyTraverseSvg(self.document.getroot(), svg.docTransform)
 
 
-        # First simplification: remove the bounding boxes from paths. Replace the object with its id.
-        # from {<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>: [[[[207, 744], [264, 801]], [207, 264, 744, 801]], [[[207, 801], [264, 744]], [207, 264, 744, 801]]]}
-        # to   {"path4490": [[[207, 744], [264, 801]], [[207, 801], [264, 744]]] }
+        ## First simplification: paths_dict[]
+        ## Remove the bounding boxes from paths. Replace the object with its id. We can still access color and style attributes through the id.
+        ## from {<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>:
+        ##                  [[[[207, 744], [264, 801]], [207, 264, 744, 801]], [[[207, 801], [264, 744]], [207, 264, 744, 801]]], ... }
+        ## to   {"path4490": [[[207, 744], [264, 801]],                         [[207, 801], [264, 744]]], ... }
+        ##
         paths_dict = {}
         for k in svg.paths:
                 kk = k.get('id', str(k))
@@ -103,21 +107,49 @@ class ThunderLaser(inkex.Effect):
                         ll.append(e[0])
                 paths_dict[kk] = ll
 
-        if not self.options.dummy:
-                inkex.errormsg('Warning: rdcam generator not implemented. Please activate Dummy output.')
-        else:
-                fd = open('/tmp/thunderlaser.json', 'w')
-                json.dump({
-                        'bbox': [[svg.xmin, svg.ymin], [svg.xmax, svg.ymax]],
-                        'speed': self.options.speed, 'speed_unit': 'mm/s',
-                        'minpower1': self.options.minpower1, 'minpower1_unit': '%',
-                        'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
-                        'resolution': svg.dpi, 'resolution_unit': 'dpi',
-                        'freq1': self.options.freq1, 'freq1_unit': 'kHz',
-                        'paths': paths_dict
-                        }, fd, indent=4, encoding='utf-8')
-                fd.close()
+        ## Second simplification: paths_list[]
+        ## Remove the keys. Leaving a simple list of lists, without color or other style attributes.
+        ## to                [[[207, 744], [264, 801]],                         [[207, 801], [264, 744]], [...] ]
+        ##
+        ## Also reposition the graphics, so that a corner or the center becomes origin [0,0]
+        ## and convert from dots-per-inch to mm.
+        paths_list = []
+        dpi2mm = 25.4 / svg.dpi
+
+        (xoff,yoff) = (svg.xmin, svg.ymin)                      # top left corner is origin
+        # (xoff,yoff) = (svg.xmax, svg.ymax)                      # bottom right corner is origin
+        # (xoff,yoff) = ((svg.xmax+svg.xmin)/2.0, (svg.ymax+svg.ymin)/2.0)       # center is origin
+
+        for paths in paths_dict.values():
+                for path in paths:
+                        for point in path:
+                                point[0] = (point[0]-xoff) * dpi2mm
+                                point[1] = (point[1]-yoff) * dpi2mm
+                paths_list.extend(paths)
+        bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
+
+        if self.options.dummy:
+                with open('/tmp/thunderlaser.json', 'w') as fd:
+                        json.dump({
+                                'paths_bbox': bbox,
+                                'speed': self.options.speed, 'speed_unit': 'mm/s',
+                                'minpower1': self.options.minpower1, 'minpower1_unit': '%',
+                                'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
+                                'resolution': svg.dpi, 'resolution_unit': 'dpi',
+                                'paths_unit': 'mm', 'svg_resolution': svg.dpi, 'svg_resolution_unit': 'dpi',
+                                'freq1': self.options.freq1, 'freq1_unit': 'kHz',
+                                'paths': paths_list
+                                }, fd, indent=4, sort_keys=True, encoding='utf-8')
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
+        else:
+                if bbox[0][0] < 0 or bbox[0][1] < 0:
+                        inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
+                rd = Ruida()
+                rd.set(speed=int(self.options.speed))
+                rd.set(power=[int(self.options.minpower1),int(self.options.maxpower1)])
+                rd.set(paths=paths_list, bbox=bbox)
+                with open('/tmp/thunderlaser.rd', 'wb') as fd: rd.write(fd)
+                print("/tmp/thunderlaser.rd written.", file=sys.stderr)
 
 
 if __name__ == '__main__':
