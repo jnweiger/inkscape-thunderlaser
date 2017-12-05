@@ -17,6 +17,9 @@ UDEV=$(DESTDIR)/lib/udev
 dist:
 	cd distribute; sh ./distribute.sh
 
+ruida.py:
+	wget -O $@ https://raw.githubusercontent.com/jnweiger/ruida-laser/master/src/ruida.py
+
 #install is used by dist.
 install:
 	mkdir -p $(DEST)
@@ -41,6 +44,8 @@ tar_dist:
 	rm -rf dist
 
 clean:
+	rm -f ruida.py
 	rm -f *.orig */*.orig
 	rm -rf distribute/$(DISTNAME)
 	rm -rf distribute/deb/files
+
