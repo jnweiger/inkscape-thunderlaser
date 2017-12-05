@@ -5,7 +5,9 @@
   <id>com.github.jnweiger.inskscape-thunderlaser</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
-  <dependency type="executable" location="extensions">thunderlaser.py</dependency>
+  <dependency type="executable" location="extensions">inksvg.py</dependency>
+  <dependency type="executable" location="extensions">ruida.py</dependency>
+  <dependency type="executable" location="extensions">ruida-laser.py</dependency>
   <param name="tab" type="notebook">
     <page name='thunderlaser' _gui-text='Thunderlaser'>
 
@@ -90,7 +92,12 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
 
       <_param name="spacer" type="description"><!-- --></_param>
 
-      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send to /tmp/thunderlaser.json">false</param>
+      <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0</param>
+      <_param name="device_help" type="description">USB connection or a file name.</_param>
+
+      <_param name="spacer" type="description"><!-- --></_param>
+
+      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
       <_param name="dummy_help" type="description">Used for debugging and developent only!</_param>
     </page>
 
@@ -112,6 +119,6 @@ See also: http://wiki.fablab-nuernberg.de/w/Nova_35
   </effect>
   
   <script>
-      <command reldir="extensions" interpreter="python">thunderlaser.py</command>
+      <command reldir="extensions" interpreter="python">ruida-laser.py</command>
   </script>
 </inkscape-extension>

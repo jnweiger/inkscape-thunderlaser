@@ -11,8 +11,11 @@
 # python2 compatibility:
 from __future__ import print_function
 
+## INLINE_BLOCK_START
+# for easier distribution, our Makefile can inline these imports when generating thunderlaser.py from src/rudia-laser.py
 from ruida import Ruida
 from inksvg import InkSvg
+## INLINE_BLOCK_END
 
 import sys
 import json
@@ -30,6 +33,10 @@ class ThunderLaser(inkex.Effect):
     def __init__(self):
         inkex.localize()    # does not help for localizing my *.inx file
         inkex.Effect.__init__(self)
+
+        self.OptionParser.add_option(
+            '--device', dest='device', type='string', default='/dev/ttyUSB0', action='store',
+            help='Output device or file name. Default: /dev/ttyUSB0')
 
         self.OptionParser.add_option(
             '--speed', dest='speed', type='string', default='30', action='store',
@@ -135,7 +142,6 @@ class ThunderLaser(inkex.Effect):
                                 'speed': self.options.speed, 'speed_unit': 'mm/s',
                                 'minpower1': self.options.minpower1, 'minpower1_unit': '%',
                                 'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
-                                'resolution': svg.dpi, 'resolution_unit': 'dpi',
                                 'paths_unit': 'mm', 'svg_resolution': svg.dpi, 'svg_resolution_unit': 'dpi',
                                 'freq1': self.options.freq1, 'freq1_unit': 'kHz',
                                 'paths': paths_list
@@ -148,8 +154,8 @@ class ThunderLaser(inkex.Effect):
                 rd.set(speed=int(self.options.speed))
                 rd.set(power=[int(self.options.minpower1),int(self.options.maxpower1)])
                 rd.set(paths=paths_list, bbox=bbox)
-                with open('/tmp/thunderlaser.rd', 'wb') as fd: rd.write(fd)
-                print("/tmp/thunderlaser.rd written.", file=sys.stderr)
+                with open(self.options.device, 'wb') as fd: rd.write(fd)
+                print(self.options.device+" written.", file=sys.stderr)
 
 
 if __name__ == '__main__':

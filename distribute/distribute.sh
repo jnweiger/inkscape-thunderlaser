@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Determining Version:"
-VERSION=$(echo '<xml height="0"/>' | python ../sendto_silhouette.py --version /dev/stdin)	
+VERSION=$(echo '<xml height="0"/>' | python ../thunderlaser.py --version /dev/stdin)	
 
 test -e /usr/bin/xpath || sudo apt-get install libxml-xpath-perl
 #

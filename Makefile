@@ -14,11 +14,25 @@ VERS=$$(echo '<xml height="0"/>' | python ./thunderlaser.py --version /dev/stdin
 DEST=$(DESTDIR)$(PREFIX)/share/inkscape/extensions
 UDEV=$(DESTDIR)/lib/udev
 
-dist:
-	cd distribute; sh ./distribute.sh
+all: clean build check dist
 
-ruida.py:
-	wget -O $@ https://raw.githubusercontent.com/jnweiger/ruida-laser/master/src/ruida.py
+build: thunderlaser.py thunderlaser.inx
+
+dist:
+	cd distribute; echo sh ./distribute.sh
+
+check:
+	test/test.sh
+
+thunderlaser.inx:
+	sed -e 's/>ruida\-laser\.py</>thunderlaser.py</g' < src/ruida-laser.inx > $@
+	sed -e '/inksvg\.py<.dependency/d' -e '/ruida\.py<.dependency/d' -i $@
+
+thunderlaser.py:
+	sed >  $@ -e '/INLINE_BLOCK_START/,$$d' < src/ruida-laser.py
+	sed >> $@ -e '/if __name__ ==/,$$d' < src/inksvg.py
+	sed >> $@ -e '/if __name__ ==/,$$d' < src/ruida.py
+	sed >> $@ -e '1,/INLINE_BLOCK_END/d' < src/ruida-laser.py
 
 #install is used by dist.
 install:
@@ -44,7 +58,7 @@ tar_dist:
 	rm -rf dist
 
 clean:
-	rm -f ruida.py
+	rm -f thunderlaser.py thunderlaser.inx
 	rm -f *.orig */*.orig
 	rm -rf distribute/$(DISTNAME)
 	rm -rf distribute/deb/files
