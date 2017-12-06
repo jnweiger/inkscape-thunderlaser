@@ -25,16 +25,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.6690613"
-     inkscape:cx="240.8099"
-     inkscape:cy="825.30933"
+     inkscape:zoom="1.3169665"
+     inkscape:cx="377.95276"
+     inkscape:cy="933.54331"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1600"
      inkscape:window-height="843"
-     inkscape:window-x="1950"
-     inkscape:window-y="311"
+     inkscape:window-x="320"
+     inkscape:window-y="1080"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -54,7 +54,7 @@
      id="layer1">
     <path
        style="opacity:1;fill:#0000ff;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 56.803571,26.369049 h 99.999999 c 27.7,0 50,13.38 50,30 v 40 c 0,16.620001 -22.3,30.000001 -50,30.000001 H 56.803571 c -27.7,0 -50.0000003,-13.38 -50.0000003,-30.000001 v -40 c 0,-16.62 22.3000003,-30 50.0000003,-30 z"
+       d="m 50,0 h 100 c 27.7,0 50,13.38 50,30 v 40 c 0,16.62 -22.3,30 -50,30 H 50 C 22.3,100 0,86.62 0,70 V 30 C 0,13.38 22.3,0 50,0 Z"
        id="rect4485" />
   </g>
 </svg>
