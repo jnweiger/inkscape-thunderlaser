@@ -2,8 +2,10 @@
 #
 # inksvg.py - parse an svg file into a plain list of paths.
 #
-# (c)2017-12-04 juergen@fabmail.org, authors of eggbot and others.
+# (c)2017 juergen@fabmail.org, authors of eggbot and others.
 #
+# 2017-12-04 jw, v1.0  Refactored class InkSvg from cookiecutter extension
+# 2017-12-07 jw, v1.1  Added roundedRectBezier()
 
 import inkex
 import simplepath
@@ -18,7 +20,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.0"
+    __version__ = "1.1"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -45,14 +47,14 @@ class InkSvg():
         if ry > 0.5*h: ry = 0.5*h
         if ry < 0.0000001: ry = rx
         k = 0.5522847498307933984022516322796     # kappa, handle length for a 4-point-circle.
-        d  = "M %g,%g h %g " % (x+rx, y, w-rx-rx)                      # top horizontal to right
-        d += "c %g,%g %g,%g %g,%g " % (rx*k,0, rx,ry*(1-k), rx,ry)     # top right ellipse
-        d += "v %g " % (h-ry-ry)                                       # right vertical down
-        d += "c %g,%g %g,%g %g,%g " % (0,ry*k, rx*(k-1),ry, -rx,ry)    # bottom right ellipse
-        d += "h %g " % (-w+rx+rx)                                      # bottom horizontal to left
-        d += "c %g,%g %g,%g %g,%g " % (-rx*k,0, -rx,ry*(k-1), -rx,-ry) # bottom left ellipse
-        d += "v %g " % (-h+ry+ry)                                      # left vertical up
-        d += "c %g,%g %g,%g %g,%g" % (0,-ry*k, rx*(1-k),-ry, rx,-ry)   # top left ellipse
+        d  = "M %f,%f h %f " % (x+rx, y, w-rx-rx)                      # top horizontal to right
+        d += "c %f,%f %f,%f %f,%f " % (rx*k,0, rx,ry*(1-k), rx,ry)     # top right ellipse
+        d += "v %f " % (h-ry-ry)                                       # right vertical down
+        d += "c %f,%f %f,%f %f,%f " % (0,ry*k, rx*(k-1),ry, -rx,ry)    # bottom right ellipse
+        d += "h %f " % (-w+rx+rx)                                      # bottom horizontal to left
+        d += "c %f,%f %f,%f %f,%f " % (-rx*k,0, -rx,ry*(k-1), -rx,-ry) # bottom left ellipse
+        d += "v %f " % (-h+ry+ry)                                      # left vertical up
+        d += "c %f,%f %f,%f %f,%f" % (0,-ry*k, rx*(1-k),-ry, rx,-ry)   # top left ellipse
         return d
 
 
@@ -444,32 +446,24 @@ class InkSvg():
                 # Create a path with the outline of the rectangle
                 x = float(node.get('x'))
                 y = float(node.get('y'))
-                if (not x) or (not y):
-                    pass
                 w = float(node.get('width', '0'))
                 h = float(node.get('height', '0'))
                 rx = float(node.get('rx', '0'))
                 ry = float(node.get('ry', '0'))
-                a = []
 
                 if rx > 0.0 or ry > 0.0:
-                    if ry < 0.0000001: ry = rx
-                    if 'rounded_rect' not in self.warnings:
-                        self.warnings['rounded_rect'] = 1
-                        inkex.errormsg(gettext.gettext(
-                            'Warning: rounded corners of rectangle ignored. Please convert object <%s> to path and try again' % node.get('id')))
-                    a.append(['M ', [x, y]])
-                    a.append([' l ', [w, 0]])
-                    a.append([' l ', [0, h]])
-                    a.append([' l ', [-w, 0]])
-                    a.append([' Z', []])
+                    if   ry < 0.0000001: ry = rx
+                    elif rx < 0.0000001: rx = ry
+                    d = self.roundedRectBezier(x, y, w, h, rx, ry)
+                    self.getPathVertices(d, node, matNew)
                 else:
+                    a = []
                     a.append(['M ', [x, y]])
                     a.append([' l ', [w, 0]])
                     a.append([' l ', [0, h]])
                     a.append([' l ', [-w, 0]])
                     a.append([' Z', []])
-                self.getPathVertices(simplepath.formatPath(a), node, matNew)
+                    self.getPathVertices(simplepath.formatPath(a), node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':
 

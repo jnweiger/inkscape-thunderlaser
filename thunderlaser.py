@@ -17,9 +17,11 @@ sys.path.append('/usr/share/inkscape/extensions/')
 #! /usr/bin/python
 #
 # inksvg.py - parse an svg file into a plain list of paths.
-# 
-# (c)2017-12-04 juergen@fabmail.org, authors of eggbot and others.
 #
+# (c)2017 juergen@fabmail.org, authors of eggbot and others.
+#
+# 2017-12-04 jw, v1.0  Refactored class InkSvg from cookiecutter extension
+# 2017-12-07 jw, v1.1  Added roundedRectBezier()
 
 import inkex
 import simplepath
@@ -34,40 +36,74 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.0"
+    __version__ = "1.1"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
+
+
+    def roundedRectBezier(self, x, y, w, h, rx, ry=0):
+        """
+        Draw a rectangle of size w x h, at start point x, y with the corners rounded by radius
+        rx and ry. Each corner is a quarter of an ellipsis, where rx and ry are the horizontal
+        and vertical dimenstion.
+        A pathspec according to https://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
+        is returned. Very similar to what inkscape would do when converting object to path.
+        Inkscape seems to use a kappa value of 0.553, higher precision is used here.
+
+        x=0, y=0, w=200, h=100, rx=50, ry=30 produces in inkscape
+        d="m 50,0 h 100 c 27.7,0 50,13.38 50,30 v 40 c 0,16.62 -22.3,30 -50,30
+           H 50 C 22.3,100 0,86.62 0,70 V 30 C 0,13.38 22.3,0 50,0 Z"
+        It is unclear, why there is a Z, the last point is identical with the first already.
+        It is unclear, why half of the commands use relative and half use absolute coordinates.
+        We do it all in relative coords, except for the initial M, and we ommit the Z.
+        """
+        if rx < 0: rx = 0
+        if rx > 0.5*w: rx = 0.5*w
+        if ry < 0: ry = 0
+        if ry > 0.5*h: ry = 0.5*h
+        if ry < 0.0000001: ry = rx
+        k = 0.5522847498307933984022516322796     # kappa, handle length for a 4-point-circle.
+        d  = "M %f,%f h %f " % (x+rx, y, w-rx-rx)                      # top horizontal to right
+        d += "c %f,%f %f,%f %f,%f " % (rx*k,0, rx,ry*(1-k), rx,ry)     # top right ellipse
+        d += "v %f " % (h-ry-ry)                                       # right vertical down
+        d += "c %f,%f %f,%f %f,%f " % (0,ry*k, rx*(k-1),ry, -rx,ry)    # bottom right ellipse
+        d += "h %f " % (-w+rx+rx)                                      # bottom horizontal to left
+        d += "c %f,%f %f,%f %f,%f " % (-rx*k,0, -rx,ry*(k-1), -rx,-ry) # bottom left ellipse
+        d += "v %f " % (-h+ry+ry)                                      # left vertical up
+        d += "c %f,%f %f,%f %f,%f" % (0,-ry*k, rx*(1-k),-ry, rx,-ry)   # top left ellipse
+        return d
+
 
     def subdivideCubicPath(self, sp, flat, i=1):
         '''
         [ Lifted from eggbot.py with impunity ]
-    
+
         Break up a bezier curve into smaller curves, each of which
         is approximately a straight line within a given tolerance
         (the "smoothness" defined by [flat]).
-    
+
         This is a modified version of cspsubdiv.cspsubdiv(): rewritten
         because recursion-depth errors on complicated line segments
         could occur with cspsubdiv.cspsubdiv().
         '''
-    
+
         while True:
             while True:
                 if i >= len(sp):
                     return
-    
+
                 p0 = sp[i - 1][1]
                 p1 = sp[i - 1][2]
                 p2 = sp[i][0]
                 p3 = sp[i][1]
-    
+
                 b = (p0, p1, p2, p3)
-    
+
                 if cspsubdiv.maxdist(b) > flat:
                     break
-    
+
                 i += 1
-    
+
             one, two = bezmisc.beziersplitatt(b, 0.5)
             sp[i - 1][2] = one[1]
             sp[i][0] = two[2]
@@ -83,7 +119,7 @@ class InkSvg():
         generality is ever needed.
         With inkscape 0.91 we need other units too: e.g. svg:width="400mm"
         '''
-    
+
         u = default_unit
         s = str.strip()
         if s[-2:] in ('px', 'pt', 'pc', 'mm', 'cm', 'in', 'ft'):
@@ -92,12 +128,12 @@ class InkSvg():
         elif s[-1:] in ('m', '%'):
             u = s[-1:]
             s = s[:-1]
-    
+
         try:
             v = float(s)
         except:
             return None, None
-    
+
         return v, u
 
 
@@ -426,32 +462,24 @@ class InkSvg():
                 # Create a path with the outline of the rectangle
                 x = float(node.get('x'))
                 y = float(node.get('y'))
-                if (not x) or (not y):
-                    pass
                 w = float(node.get('width', '0'))
                 h = float(node.get('height', '0'))
                 rx = float(node.get('rx', '0'))
                 ry = float(node.get('ry', '0'))
-                a = []
 
                 if rx > 0.0 or ry > 0.0:
-                    if ry < 0.0000001: ry = rx
-                    if 'rounded_rect' not in self.warnings:
-                        self.warnings['rounded_rect'] = 1
-                        inkex.errormsg(gettext.gettext(
-                            'Warning: rounded corners of rectangle ignored. Please convert object <%s> to path and try again' % node.get('id')))
-                    a.append(['M ', [x, y]])
-                    a.append([' l ', [w, 0]])
-                    a.append([' l ', [0, h]])
-                    a.append([' l ', [-w, 0]])
-                    a.append([' Z', []])
+                    if   ry < 0.0000001: ry = rx
+                    elif rx < 0.0000001: rx = ry
+                    d = self.roundedRectBezier(x, y, w, h, rx, ry)
+                    self.getPathVertices(d, node, matNew)
                 else:
+                    a = []
                     a.append(['M ', [x, y]])
                     a.append([' l ', [w, 0]])
                     a.append([' l ', [0, h]])
                     a.append([' l ', [-w, 0]])
                     a.append([' Z', []])
-                self.getPathVertices(simplepath.formatPath(a), node, matNew)
+                    self.getPathVertices(simplepath.formatPath(a), node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':
 
@@ -652,6 +680,7 @@ class InkSvg():
                     return simpletransform.composeTransform(parent_transform, tr)
         else:
             return self.docTransform
+
 #! /usr/bin/python3
 #
 # (c) 2017 Patrick Himmelmann et.al.
