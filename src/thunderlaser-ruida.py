@@ -84,9 +84,10 @@ class ThunderLaser(inkex.Effect):
             "--dummy", action="store", type="inkbool", dest="dummy", default=False,
             help="Dummy device: Send to /tmp/thunderlaser.rd . Default: False")
 
-        self.OptionParser.add_option(
-            "--version", action="store", type="inkbool", dest="version", default=False,
-            help="Print version number: v"+self.__version__)
+        self.OptionParser.add_option('-V', '--version',
+          action = 'store_const', const=True, dest = 'version', default = False,
+          help='Just print version number ("'+self.__version__+'") and exit.')
+
 
 
     def effect(self):
@@ -96,7 +97,7 @@ class ThunderLaser(inkex.Effect):
         svg.handleViewBox()
 
         if self.options.version:
-            print("inkscape extension thunderlaser V"+self.__version__)
+            print("Version "+self.__version__)
             sys.exit(0)
 
         # First traverse the document (or selected items), reducing

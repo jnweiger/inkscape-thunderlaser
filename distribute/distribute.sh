@@ -21,7 +21,7 @@ mkdir $name
 cp ../README.md $name/README
 cp ../LICENSE* $name/
 cp ../*.py ../*.inx ../Makefile $name/
-cp ../*.sh ../*.rules ../*.png  $name/
+cp ../src/*.sh ../src/*.rules ../src/*.png  $name/
 
 
 echo "****************************************************************"
