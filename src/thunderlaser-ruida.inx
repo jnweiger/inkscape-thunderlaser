@@ -11,7 +11,7 @@
   <param name="tab" type="notebook">
     <page name='thunderlaser' _gui-text='Thunderlaser'>
 
-      <param name="settings_help" type="description">
+      <param name="settings_help" type="description" xml:space="preserve">
 
 CUT                                   Speed    MinPower   MaxPower
                                            [mm/s]      [ % ]           [ % ]

@@ -8,6 +8,7 @@ test -e /usr/bin/xpath || sudo apt-get install libxml-xpath-perl
 xpath -q -e '//param[@name="about_version"]/text()' ../thunderlaser.inx
 echo "Version should be: \"$VERSION\""
 
+VERSION=$(echo "$VERSION" | sed -e 's/version\s*//i')
 
 
 name=inkscape-thunderlaser
@@ -23,9 +24,12 @@ cp ../LICENSE* $name/
 cp ../*.py ../*.inx ../Makefile $name/
 cp ../src/*.sh ../src/*.rules ../src/*.png  $name/
 
+# remove the devel hint, if any. Obsoleted by make nodevel.
+sed -i -e 's@\s*(*devel)*</_name>@</_name>@i' -e 's@\.devel</id>@</id>@i' $name/*.inx
 
 echo "****************************************************************"
-echo "Ubuntu Version: For Building you must have checkinstall and dpkg"
+echo "The Ubuntu build requires checkinstall and dpkg."
+echo ""
 echo "Build Ubuntu Version (Y/n)?"
 read answer
 if [ "$answer" != "n" ]

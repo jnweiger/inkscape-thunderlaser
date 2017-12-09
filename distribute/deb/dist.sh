@@ -19,9 +19,12 @@ cp *-pak files/
 cd files
 fakeroot checkinstall --fstrans --reset-uid --type debian \
   --install=no -y --pkgname $name --pkgversion $vers --arch all \
-  --pkglicense LGPL --pkggroup other --pakdir ../$tmp --pkgsource $url \
+  --pkgrelease=$(date +%Y%m%d)jw --pkglicense LGPL --pkggroup other \
+  --pakdir ../$tmp --pkgsource $url \
   --pkgaltsource "http://wiki.fablab-nuernberg.de/w/Nova_35" \
   --maintainer "'Juergen Weigert (juewei@fabmail.org)'" \
   --requires "$requires" make install \
   -e PREFIX=/usr || { echo "fakeroot checkinstall error "; exit 1; }
 
+dpkg-deb --info     ../$tmp/*.deb
+dpkg-deb --contents ../$tmp/*.deb
