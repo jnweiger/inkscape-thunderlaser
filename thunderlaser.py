@@ -1168,7 +1168,7 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.1' # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.2'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         inkex.localize()    # does not help for localizing my *.inx file
