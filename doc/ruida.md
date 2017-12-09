@@ -17,7 +17,7 @@ Known limitations are:
 * Text rendering. Text elements are not represented in the output, but a warning is generated **"Warning: unable to draw text, please convert it to a path first."**
 * Dotted or dashed lines. They are rendered as solid lines. inkscape-silhouette has code to support this.
 
-class Thunderlaser
+class ThunderLaser
 ==================
 
 This is the main class. It contains option parsing and the interface code to inkscape, the `effect()` method. It calls the `recursivelyTraverseSvg()` method from InkSvg to generate a path list.
