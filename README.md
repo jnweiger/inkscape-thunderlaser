@@ -5,3 +5,6 @@ Using svg to path conversion from inkscape-paths2openscad from inkcscape-cookiec
 Added support for rounded corners in rectangles. Most other exporter export all
 rectangles with sharp corners and ignore any radius specified in the svg file.
 
+<img src="https://raw.githubusercontent.com/jnweiger/inkscape-thunderlaser/master/doc/screenshot.png">
+
+<img src="https://raw.githubusercontent.com/jnweiger/inkscape-thunderlaser/master/doc/rounded_rect_debug.png">
