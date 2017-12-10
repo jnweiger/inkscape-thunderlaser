@@ -15,7 +15,7 @@ The InkSvg class is implemented in src/inksvg.py and implements converting an SV
 Known limitations are:
 
 * Text rendering. Text elements are not represented in the output, but a warning is generated **"Warning: unable to draw text, please convert it to a path first."**
-* Dotted or dashed lines. They are rendered as solid lines. inkscape-silhouette has code to support this.
+* Dotted or dashed lines. They are rendered as solid lines. TODO: use src/convert2dashes.py from https://github.com/fablabnbg/inkscape-silhouette/pull/33/commits/dfa061352d0c211ada77da6860b74361ddf431b0
 
 class ThunderLaser
 ==================
