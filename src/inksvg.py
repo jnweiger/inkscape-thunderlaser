@@ -2,13 +2,30 @@
 #
 # inksvg.py - parse an svg file into a plain list of paths.
 #
-# (c)2017 juergen@fabmail.org, authors of eggbot and others.
+# (C) 2017 juergen@fabmail.org, authors of eggbot and others.
 #
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#################
 # 2017-12-04 jw, v1.0  Refactored class InkSvg from cookiecutter extension
 # 2017-12-07 jw, v1.1  Added roundedRectBezier()
+# 2017-12-10 jw, v1.3  Added styleDasharray() with stroke-dashoffset
 
 import inkex
 import simplepath
+import simplestyle
 import simpletransform
 import cubicsuperpath
 import cspsubdiv
@@ -20,10 +37,89 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.1"
+    __version__ = "1.3"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
+    def styleDasharray(self, path_d, node):
+        """
+        Check the style of node for a stroke-dasharray, and apply it to the
+        path d returning the result.  d is returned unchanged, if no
+        stroke-dasharray was found.
+
+        ## Extracted from inkscape extension convert2dashes; original
+        ## comments below.
+        ## Added stroke-dashoffset handling, made it a universal operator
+        ## on nodes and 'd' paths.
+
+        This extension converts a path into a dashed line using 'stroke-dasharray'
+        It is a modification of the file addnodes.py
+
+        Copyright (C) 2005,2007 Aaron Spike, aaron@ekips.org
+        Copyright (C) 2009 Alvin Penner, penner@vaxxine.com
+        """
+
+        def tpoint((x1,y1), (x2,y2), t = 0.5):
+            return [x1+t*(x2-x1),y1+t*(y2-y1)]
+        def cspbezsplit(sp1, sp2, t = 0.5):
+            m1=tpoint(sp1[1],sp1[2],t)
+            m2=tpoint(sp1[2],sp2[0],t)
+            m3=tpoint(sp2[0],sp2[1],t)
+            m4=tpoint(m1,m2,t)
+            m5=tpoint(m2,m3,t)
+            m=tpoint(m4,m5,t)
+            return [[sp1[0][:],sp1[1][:],m1], [m4,m,m5], [m3,sp2[1][:],sp2[2][:]]]
+        def cspbezsplitatlength(sp1, sp2, l = 0.5, tolerance = 0.001):
+            bez = (sp1[1][:],sp1[2][:],sp2[0][:],sp2[1][:])
+            t = bezmisc.beziertatlength(bez, l, tolerance)
+            return cspbezsplit(sp1, sp2, t)
+        def cspseglength(sp1,sp2, tolerance = 0.001):
+            bez = (sp1[1][:],sp1[2][:],sp2[0][:],sp2[1][:])
+            return bezmisc.bezierlength(bez, tolerance)
+
+        style = simplestyle.parseStyle(node.get('style'))
+        if not style.has_key('stroke-dasharray'):
+            return path_d
+        dashes = []
+        if style['stroke-dasharray'].find(',') > 0:
+            dashes = [float (dash) for dash in style['stroke-dasharray'].split(',') if dash]
+        if not dashes:
+            return path_d
+
+        dashoffset = 0.0
+        if style.has_key('stroke-dashoffset'):
+            dashoffset = float(style['stroke-dashoffset'])
+            if dashoffset < 0.0: dashoffset = 0.0
+            if dashoffset > dashes[0]: dashoffset = dashes[0]   # avoids a busy-loop below!
+
+        p = cubicsuperpath.parsePath(path_d)
+        new = []
+        for sub in p:
+            idash = 0
+            dash = dashes[0]
+            print("initial dash length: ", dash, dashoffset)
+            dash = dash - dashoffset
+            length = 0
+            new.append([sub[0][:]])
+            i = 1
+            while i < len(sub):
+                dash = dash - length
+                length = cspseglength(new[-1][-1], sub[i])
+                while dash < length:
+                    new[-1][-1], next, sub[i] = cspbezsplitatlength(new[-1][-1], sub[i], dash/length)
+                    if idash % 2:           # create a gap
+                        new.append([next[:]])
+                    else:                   # splice the curve
+                        new[-1].append(next[:])
+                    length = length - dash
+                    idash = (idash + 1) % len(dashes)
+                    dash = dashes[idash]
+                if idash % 2:
+                    new.append([sub[i]])
+                else:
+                    new[-1].append(sub[i])
+                i+=1
+        return cubicsuperpath.formatPath(new)
 
     def roundedRectBezier(self, x, y, w, h, rx, ry=0):
         """
@@ -269,6 +365,9 @@ class InkSvg():
         if (not path) or (len(path) == 0):
             # Nothing to do
             return None
+
+        if node is not None:
+            path = self.styleDasharray(path, node)
 
         # parsePath() may raise an exception.  This is okay
         sp = simplepath.parsePath(path)
