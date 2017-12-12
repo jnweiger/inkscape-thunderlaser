@@ -807,6 +807,10 @@ class InkSvg():
 # 2017-12-03, jw@fabmail.org
 #     v1.0 -- The test code produces a valid square_tri_test.rd, according to
 #             githb.com/kkaempf/rudida/bin/decode
+# 2017-12-12, jw@fabmail.org
+#     v1.2 -- Correct maxrel 8.191 found. 
+#             Implemented Cut_Horiz, Cut_Vert, Move_Horiz, Move_Vert
+#             Updated encode_relcoord() to use encode_number(2)
 
 import sys, re, math
 
@@ -851,7 +855,7 @@ class Ruida():
         adjusted at the machine.
   """
 
-  __version__ = "1.1"
+  __version__ = "1.2"
 
   def __init__(self, paths=None, speed=None, power=None, bbox=None, freq=20.0):
     self._paths = paths
@@ -958,7 +962,7 @@ class Ruida():
         if point[1] < ymin: ymin = point[1]
     return [[xmin, ymin], [xmax, ymax]]
 
-  def body(self, paths, maxrel=-5.0):           # a negative maxrel value forces all absolute movements.
+  def body(self, paths, maxrel=8.191):           # 8.191 encodes as 3f 7f. A negative maxrel value forces all absolute movements.
     """
     Convert a set of paths into lasercut instructions.
     Returns the binary instruction data.
@@ -989,10 +993,21 @@ class Ruida():
       for p in path:
         if relok(lp, p, maxrel):
 
-          if travel:
-            data += self.enc('-rr', ['89', p[0]-lp[0], p[1]-lp[1]])   # Move_To_Rel 3.091mm 0.025mm
-          else:
-            data += self.enc('-rr', ['a9', p[0]-lp[0], p[1]-lp[1]])   # Cut_Rel 0.015mm -1.127mm
+          if p[1] == lp[1]:     # horizontal rel
+            if travel:
+              data += self.enc('-r', ['8a', p[0]-lp[0]])   # Move_Horiz 6.213mm
+            else:
+              data += self.enc('-r', ['aa', p[0]-lp[0]])   # Cut_Horiz -6.008mm
+          elif p[0] == lp[0]:   # vertical rel
+            if travel:
+              data += self.enc('-r', ['8b', p[1]-lp[1]])   # Move_Vert 17.1mm
+            else:
+              data += self.enc('-r', ['ab', p[1]-lp[1]])   # Cut_Vert 2.987mm
+          else:                 # other rel
+            if travel:
+              data += self.enc('-rr', ['89', p[0]-lp[0], p[1]-lp[1]])   # Move_To_Rel 3.091mm 0.025mm
+            else:
+              data += self.enc('-rr', ['a9', p[0]-lp[0], p[1]-lp[1]])   # Cut_Rel 0.015mm -1.127mm
 
         else:
 
@@ -1213,15 +1228,12 @@ class Ruida():
     """
     Relative position in mm;
     Returns a bytes array of two elements.
-
-    FIXME: As of 2017-12-04 this encoding is broken. Do not use.
     """
     nn = int(n*1000)
-    if nn > 8192 or nn < -8191:
+    if nn > 8191 or nn < -8191:
       raise ValueError("relcoord "+str(n)+" mm is out of range. Use abscoords!")
     if nn < 0: nn += 16384
-    nn <<= 1
-    return bytes([nn>>8, nn&0xff])    # 8-bit encoding with lost lsb.
+    return self.encode_number(nn, length=2, scale=1)
 
   def decode_relcoord(self, x):
     """
@@ -1230,10 +1242,9 @@ class Ruida():
     """
     r = x[0] << 8
     r += x[1]
-    r >>= 1
     if r > 16383 or r < 0:
       raise ValueError("Not a rel coord: " + repr(x[0:2]))
-    if r > 8192: return 0.001 * (r-16384)
+    if r > 8191: return 0.001 * (r-16384)
     else:        return 0.001 * r
 
   def encode_percent(self, n):
@@ -1267,7 +1278,7 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.3'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.4'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         inkex.localize()    # does not help for localizing my *.inx file

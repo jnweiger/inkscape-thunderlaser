@@ -39,6 +39,13 @@ then
   (cd deb && sh ./dist.sh $name $VERSION)
 fi
 
+echo "Build Windows Version (Y/n)?"
+read answer
+if [ "$answer" != "n" ]
+then
+  (cd win && sh ./dist.sh $name $VERSION)
+fi
+
 
 echo "Built packages are in distribute/out :"
 ls -la out
