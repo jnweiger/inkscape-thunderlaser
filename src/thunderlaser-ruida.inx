@@ -112,7 +112,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
       <!-- Keep in sync with thunderlaser.py line 78 __version__ = ... -->
       <_param name="spacer" type="description"><!-- --></_param>
 
-      <param name="about_version" type="description">Version 1.3</param>
+      <param name="about_version" type="description">Version 1.4</param>
     </page>
   </param>
 
