@@ -10,90 +10,110 @@
   <dependency type="executable" location="extensions">thunderlaser-ruida.py</dependency>
   <param name="tab" type="notebook">
     <page name='thunderlaser' _gui-text='Thunderlaser'>
+      <param name="header_cut" type="description" appearance="header">Cut Settings</param>
 
-      <param name="settings_help" type="description" xml:space="preserve">
-CUT                                   Speed    MinPower   MaxPower
-                                           [mm/s]      [ % ]           [ % ]
-Acrylic 3mm                          25          55              70
-Birch Plywood 3mm           40          50               65
-Birch Plywood 4mm           30          50               65
-Birch Plywood 5mm           20          50               65
-Cardboard 1mm (FinnP) 300          26               65
-Cardboard 3mm (FinnP)   80          50               70
-PU foam 10mm                 100          50               70
-
-
-MARK                              Speed     MinPower    MaxPower
-                                          [mm/s]       [ % ]             [ % ]
-Birch Plywood                  1000           8                 25
-Cardboard (FinnPappe) 1000           7                 18
+      <param name="cut_group" type="notebook">
+        <page name='cut_wood' gui-text='Wood'>
+          <param name="cut_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
+          <param name="cut_wood" type="enum" gui-text="">
+            <item value="40,50,65">40,50,65: Birch Plywood 3 mm</item>
+            <item value="30,50,65">30,50,65: Birch Plywood 4 mm</item>
+            <item value="20,50,65">20,50,65: Birch Plywood 5 mm</item>
+           </param>
+        </page>
+        <page name='cut_plastics' gui-text='Plastics'>
+          <param name="cut_plastics_help" type="description">Speed,MinPower,MaxPower: Material</param>
+          <param name="cut_plastics" type="enum" gui-text="">
+            <item value="25,55,70">25,55,70: Acrylic (PMMA) 3 mm</item>
+            <item value="20,55,70">20,55,70: Acrylic (PMMA) 4 mm</item>
+            <item value="15,55,70">15,55,70: Acrylic (PMMA) 5 mm</item>
+          </param>
+        </page>
+        <page name='cut_other' gui-text='Other '>
+          <param name="cut_other_help" type="description">Speed,MinPower,MaxPower: Material</param>
+          <param name="cut_other" type="enum" gui-text="">
+            <item value="300,26,65">300,26,65: Cardboard (FinnP) 1 mm</item>
+            <item value="80,50,70">80,50,70: Cardboard (FinnP) 3 mm</item>
+            <item value="100,50,70">100,50,70: PU foam 10 mm</item>
+          </param>
+        </page>
+        <page name='cut_manual' gui-text='Speed/Power'>
+          <param name="cut_manual_speed" type="int" min="2" max="1000" appearance="full" gui-text="Speed [mm/s]:  ">30</param>
+          <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinPower %:    ">50</param>
+          <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxPower %:    ">70</param>
+        </page>
       </param>
 
-      <param name="speed" type="enum" _gui-text="Speed [mm/s]:    ">
-        <item value="15">15 mm/s</item>
-        <item value="20">20 mm/s</item>
-        <item value="25">25 mm/s</item>
-        <item value="30">30 mm/s</item>
-        <item value="40">40 mm/s</item>
-        <item value="60">60 mm/s</item>
-        <item value="80">80 mm/s</item>
-        <item value="100">100 mm/s</item>
-        <item value="150">150 mm/s</item>
-        <item value="200">200 mm/s</item>
-        <item value="300">300 mm/s</item>
-        <item value="500">500 mm/s</item>
-        <item value="750">750 mm/s</item>
-        <item value="1000">1000 mm/s</item>
+      <param name="cut_color" type="enum" gui-text="By line color">
+        <item value="any">Any</item>
+        <item value="none">Cut nothing</item>
+        <item value="red">Red</item>
+        <item value="green">Green</item>
+        <item value="blue">Blue</item>
+        <item value="black">Black</item>
+        <item value="white">White</item>
+        <item value="cyan">Cyan</item>
+        <item value="magenta">Magenta</item>
+        <item value="yellow">Yellow</item>
       </param>
-      <param name="minpower1" type="enum" _gui-text="MinPower [%]:    ">
-        <item value="7">7 %</item>
-        <item value="8">8 %</item>
-        <item value="10">10 %</item>
-        <item value="15">15 %</item>
-        <item value="20">20 %</item>
-        <item value="26">26 %</item>
-        <item value="38">38 %</item>
-        <item value="50">50 %</item>
-        <item value="55">55 %</item>
-        <item value="60">60 %</item>
+      <param name="spacer" type="description"> </param>
+
+      <param name="header_mark" type="description" appearance="header">Mark Settings</param>
+
+      <param name="mark_group" type="notebook">
+        <page name='mark_material' gui-text='Material'>
+          <param name="mark_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
+          <param name="mark_material" type="enum" gui-text="">
+            <item value="1000,8,25">1000,8,25: Birch Plywood</item>
+            <item value="1000,7,18">1000,7,18: Cardboard (Finnpappe)</item>
+          </param>
+        </page>
+        <page name='mark_manual' gui-text='Speed/Power'>
+          <param name="mark_manual_speed" type="int" min="2" max="1000" appearance="full" gui-text="Speed [mm/s]:  ">30</param>
+          <param name="mark_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinPower %:    ">50</param>
+          <param name="mark_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxPower %:    ">70</param>
+        </page>
       </param>
-      <param name="maxpower1" type="enum" _gui-text="MaxPower [%]:   ">
-        <item value="18">18 %</item>
-        <item value="25">25 %</item>
-        <item value="45">45 %</item>
-        <item value="65">65 %</item>
-        <item value="70">70 %</item>
-        <item value="75">75 %</item>
+
+      <param name="mark_color" type="enum" gui-text="By line color">
+        <item value="none">Mark nothing</item>
+        <item value="any">Any</item>
+        <item value="red">Red</item>
+        <item value="green">Green</item>
+        <item value="blue">Blue</item>
+        <item value="black">Black</item>
+        <item value="white">White</item>
+        <item value="cyan">Cyan</item>
+        <item value="magenta">Magenta</item>
       </param>
-      <param name="reference" type="description">
-See also: http://wiki.fablab-nuernberg.de/w/Nova_35
-      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="reference" type="description">See also: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
     </page>
 
     <page name='advanced' _gui-text='Advanced'>
       <param name="smoothness" type="float" min="0.0001" max="5" _gui-text="Smoothing">0.2</param>
       <_param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
       </_param>
+      <param name="spacer" type="description"> </param>
 
+<!--
       <param name="freq1" type="float" min="0" max="1000" _gui-text="Frequency [kHz]">20.0</param>
       <_param name="freq1_help" type="description">Laser1 frequency. Unused?</_param>
-
-      <_param name="spacer" type="description"><!-- --></_param>
+      <param name="spacer" type="description"> </param>
+-->
 
       <param name="maxwidth"  type="int" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
       <param name="maxheight" type="int" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
-
-      <_param name="spacer" type="description"><!-- --></_param>
+      <param name="spacer" type="description"> </param>
 
       <param name="bbox_only" type="boolean" _gui-text="Cut bounding box only">false</param>
       <_param name="bbox_only_help" type="description">Used for a quick test, or a clean frame cut afterwards.</_param>
-
-      <_param name="spacer" type="description"><!-- --></_param>
+      <param name="spacer" type="description"> </param>
 
       <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0</param>
       <_param name="device_help" type="description">USB connection or a file name.</_param>
-
-      <_param name="spacer" type="description"><!-- --></_param>
+      <param name="spacer" type="description"> </param>
 
       <param name="dummy"    type="boolean" _gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
       <_param name="dummy_help" type="description">Used for debugging and developent only!</_param>
@@ -109,10 +129,9 @@ Thanks To Stefan Schuermanns for the descrambler https://stefan.schuermans.info/
 Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/ruida for the file format.
 </param>
 
-      <!-- Keep in sync with thunderlaser.py line 78 __version__ = ... -->
-      <_param name="spacer" type="description"><!-- --></_param>
+      <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.4</param>
+      <param name="about_version" type="description">Version 1.5</param>
     </page>
   </param>
 

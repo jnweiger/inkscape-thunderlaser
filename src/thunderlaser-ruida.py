@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 #
-# thunderlaser.py -- minimalistic driver for exporting an RDCAM fie for a Thunderlaser RUIDA machine.
+# thunderlaser.py -- driver for exporting an SVG drawing as an RDCAM file for a Thunderlaser RUIDA machine.
 #
 # This is an Inkscape extension to output paths in rdcam format.
 # recursivelyTraverseSvg() is originally from eggbot. Thank!
@@ -12,7 +12,15 @@
 from __future__ import print_function
 
 import sys
-sys.path.append('/usr/share/inkscape/extensions/')
+
+sys_platform = sys.platform.lower()
+if sys_platform.startswith('win'):
+  sys.path.append('C:\Program Files\Inkscape\share\extensions')
+elif sys_platform.startswith('darwin'):
+  sys.path.append('~/.config/inkscape/extensions')
+else:   # Linux
+  sys.path.append('/usr/share/inkscape/extensions/')
+
 
 ## INLINE_BLOCK_START
 # for easier distribution, our Makefile can inline these imports when generating thunderlaser.py from src/rudia-laser.py
@@ -33,32 +41,85 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.4'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.5'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
 
     def __init__(self):
+        """
+Option parser example:
+
+'thunderlaser.py', '--tab="thunderlaser"', '--cut_group="cut_plastics"', '--cut_wood=30,50,65', '--cut_plastics=25,55,70', '--cut_other=300,26,65', '--cut_manual_speed=68', '--cut_manual_minpow=60', '--cut_manual_maxpow=70', '--cut_color=any', '--mark_group="mark_material"', '--mark_material=1000,8,25', '--mark_manual_speed=30', '--mark_manual_minpow=50', '--mark_manual_maxpow=70', '--mark_color=none', '--smoothness=0.20000000298023224', '--maxwidth=900', '--maxheight=600', '--bbox_only=false', '--device=/dev/ttyUSB0,/tmp/hannes.rd', '--dummy=true', '/tmp/ink_ext_XXXXXX.svgDTI8AZ']
+
+        """
         inkex.localize()    # does not help for localizing my *.inx file
         inkex.Effect.__init__(self)
-
-        self.OptionParser.add_option(
-            '--device', dest='devicelist', type='string', default='/dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd', action='store',
-            help='Output device or file name to use. A comma-separated list. Default: /dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd')
-
-        self.OptionParser.add_option(
-            '--speed', dest='speed', type='string', default='30', action='store',
-            help='Laser movement speed [mm/s]. Default: 30 mm/s')
-
-        self.OptionParser.add_option(
-            '--maxpower1', dest='maxpower1', type='string', default='70', action='store',
-            help='Laser1 maximum power [%]. Default: 70 %')
-
-        self.OptionParser.add_option(
-            '--minpower1', dest='minpower1', type='string', default='50', action='store',
-            help='Laser1 minimum power [%]. Default: 50 %')
 
         self.OptionParser.add_option(
             "--tab",  # NOTE: value is not used.
             action="store", type="string", dest="tab", default="thunderlaser",
             help="The active tab when Apply was pressed")
+
+        self.OptionParser.add_option(
+            "--cut_group", action="store", type="string", dest="cut_group", default="cut_wood",
+            help="The active cut_group tab when Apply was pressed")
+
+        self.OptionParser.add_option(
+            "--mark_group", action="store", type="string", dest="mark_group", default="mark_material",
+            help="The active mark_group tab when Apply was pressed")
+
+        self.OptionParser.add_option(
+            "--cut_color", action="store", type="string", dest="cut_color", default="any",
+            help="The color setting for cutting. Default: any")
+
+        self.OptionParser.add_option(
+            "--mark_color", action="store", type="string", dest="mark_color", default="none",
+            help="The color setting for cutting. Default: none")
+
+
+
+        self.OptionParser.add_option(
+            '--cut_wood', dest='cut_wood', type='string', default='30,50,65', action='store',
+            help='Speed,MinPower,MaxPower Setting when cutting wood is selected.')
+
+        self.OptionParser.add_option(
+            '--cut_plastics', dest='cut_plastics', type='string', default='', action='store',
+            help='Speed,MinPower,MaxPower Setting when cutting plastics is selected.')
+
+        self.OptionParser.add_option(
+            '--cut_other', dest='cut_other', type='string', default='', action='store',
+            help='Speed,MinPower,MaxPower Setting when cutting other is selected.')
+
+        self.OptionParser.add_option(
+            '--cut_manual_speed', dest='cut_manual_speed', type='int', default=30, action='store',
+            help='Speed Setting when cutting with manual entry is selected.')
+
+        self.OptionParser.add_option(
+            '--cut_manual_minpow', dest='cut_manual_minpow', type='int', default=30, action='store',
+            help='MinPower1 Setting when cutting with manual entry is selected.')
+
+        self.OptionParser.add_option(
+            '--cut_manual_maxpow', dest='cut_manual_maxpow', type='int', default=30, action='store',
+            help='MaxPower1 Setting when cutting with manual entry is selected.')
+
+
+
+
+        self.OptionParser.add_option(
+            '--mark_material', dest='mark_material', type='string', default='1000,7,18', action='store',
+            help='Speed,MinPower,MaxPower Setting when marking by material is selected.')
+
+        self.OptionParser.add_option(
+            '--mark_manual_speed', dest='mark_manual_speed', type='int', default=1000, action='store',
+            help='Speed Setting when marking with manual entry is selected.')
+
+        self.OptionParser.add_option(
+            '--mark_manual_minpow', dest='mark_manual_minpow', type='int', default=7, action='store',
+            help='MinPower1 Setting when marking with manual entry is selected.')
+
+        self.OptionParser.add_option(
+            '--mark_manual_maxpow', dest='mark_manual_maxpow', type='int', default=18, action='store',
+            help='MaxPower1 Setting when marking with manual entry is selected.')
+
+
 
         self.OptionParser.add_option(
             '--smoothness', dest='smoothness', type='float', default=float(0.2), action='store',
@@ -84,10 +145,58 @@ class ThunderLaser(inkex.Effect):
             "--dummy", action="store", type="inkbool", dest="dummy", default=False,
             help="Dummy device: Send to /tmp/thunderlaser.rd . Default: False")
 
+        self.OptionParser.add_option(
+            '--device', dest='devicelist', type='string', default='/dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd', action='store',
+            help='Output device or file name to use. A comma-separated list. Default: /dev/ttyUSB0,/dev/ttyACM0,/tmp/thunderlaser.rd')
+
         self.OptionParser.add_option('-V', '--version',
           action = 'store_const', const=True, dest = 'version', default = False,
           help='Just print version number ("'+self.__version__+'") and exit.')
 
+
+    def cut_options(self):
+        """
+        returns None, if deactivated or
+        returns [ 'speed':1000, 'minpow':50, 'maxpow':70, 'color':"any" ] otherwise.
+        """
+        group=self.options.cut_group.strip('"')         # passed into the option with surrounding double-quotes. yacc.
+        color = self.options.cut_color
+        if color == 'none': return None
+
+        parse_str = None
+        if   group == "cut_wood":     parse_str = self.options.cut_wood
+        elif group == "cut_plastics": parse_str = self.options.cut_plastics
+        elif group == "cut_other":    parse_str = self.options.cut_other
+        if parse_str is None:
+          return {
+                'speed': int(self.options.cut_manual_speed),
+                'minpow':int(self.options.cut_manual_minpow),
+                'maxpow':int(self.options.cut_manual_maxpow),
+                'color':color, 'group':group }
+        else:
+          v = parse_str.split(',')
+          return { 'speed':int(v[0]), 'minpow':int(v[1]), 'maxpow':int(v[2]), 'color':color, 'group':group }
+
+    def mark_options(self):
+        """
+        returns None, if self.options.mark_color=='none'
+        returns [ 'speed':1000, 'minpow':50, 'maxpow':70, 'color':"green" ] otherwise.
+        """
+        group=self.options.mark_group.strip('"')
+        color = self.options.mark_color
+        if color == 'none': return None
+
+        parse_str = None
+        if group == "mark_material": parse_str = self.options.mark_material
+        if parse_str is None:
+          return {
+                'speed': int(self.options.mark_manual_speed),
+                'minpow':int(self.options.mark_manual_minpow),
+                'maxpow':int(self.options.mark_manual_maxpow),
+                'color':color, 'group':group }
+        else:
+          v = parse_str.split(',')
+          return { 'speed':int(v[0]), 'minpow':int(v[1]), 'maxpow':int(v[2]), 'color':color, 'group':group }
 
 
     def effect(self):
@@ -150,13 +259,23 @@ class ThunderLaser(inkex.Effect):
                         paths_list.append(newpath)
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
+        cut_opt = self.cut_options()
+        mark_opt = self.mark_options()                  # FIXME: unused
+        if cut_opt is None and mark_opt is None:
+          inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
+          sys.exit(1)
+
+        if cut_opt is not None and mark_opt is not None and cut_opt['color'] == mark_opt['color']:
+          inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
+          sys.exit(1)
+
+        if cut_opt is None: cut_opt = mark_opt          # so that we have at least something to do.
+
         if self.options.dummy:
                 with open('/tmp/thunderlaser.json', 'w') as fd:
                         json.dump({
                                 'paths_bbox': bbox,
-                                'speed': self.options.speed, 'speed_unit': 'mm/s',
-                                'minpower1': self.options.minpower1, 'minpower1_unit': '%',
-                                'maxpower1': self.options.maxpower1, 'maxpower1_unit': '%',
+                                'cut_opt': cut_opt, 'mark_opt': mark_opt,
                                 'paths_unit': 'mm', 'svg_resolution': svg.dpi, 'svg_resolution_unit': 'dpi',
                                 'freq1': self.options.freq1, 'freq1_unit': 'kHz',
                                 'paths': paths_list
@@ -166,8 +285,8 @@ class ThunderLaser(inkex.Effect):
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
                 rd = Ruida()
-                rd.set(speed=int(self.options.speed))
-                rd.set(power=[int(self.options.minpower1),int(self.options.maxpower1)])
+                rd.set(speed=cut_opt['speed'])
+                rd.set(power=[cut_opt['minpow'], cut_opt['maxpow']])
                 rd.set(paths=paths_list, bbox=bbox)
                 device_used = None
                 for device in self.options.devicelist.split(','):
@@ -180,7 +299,7 @@ class ThunderLaser(inkex.Effect):
                     except:
                         pass
                 if device_used is None:
-                        inkex.errormsg(gettext.gettext('Warning: no usable devices in device list: '+self.options.devicelist))
+                        inkex.errormsg(gettext.gettext('Warning: no usable devices in device list (or bad directoy): '+self.options.devicelist))
 
 
 if __name__ == '__main__':
