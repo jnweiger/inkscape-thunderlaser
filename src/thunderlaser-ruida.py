@@ -281,6 +281,11 @@ Option parser example:
           inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
           sys.exit(1)
 
+        ## FIXME: separation cut/mark not impl.
+        if cut_opt is not None and mark_opt is not None:
+          inkex.errormsg(gettext.gettext('ERROR: Choose either Cut or Mark. Both together is not yet implemented. Sorry.'))
+          sys.exit(1)
+
         if cut_opt is None: cut_opt = mark_opt          # so that we have at least something to do.
 
         if self.options.dummy:
