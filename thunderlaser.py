@@ -815,10 +815,14 @@ class InkSvg():
 # 2017-12-03, jw@fabmail.org
 #     v1.0 -- The test code produces a valid square_tri_test.rd, according to
 #             githb.com/kkaempf/rudida/bin/decode
-# 2017-12-12, jw@fabmail.org
-#     v1.2 -- Correct maxrel 8.191 found. 
+# 2017-12-11, jw@fabmail.org
+#     v1.2 -- Correct maxrel 8.191 found.
 #             Implemented Cut_Horiz, Cut_Vert, Move_Horiz, Move_Vert
 #             Updated encode_relcoord() to use encode_number(2)
+# 2017-12-13, jw@fabmail.org
+#     v1.3 -- added _forceabs = 100. Limit possible precision loss.
+# 2017-12-14, jw@fabmail.org
+#     v1.4 -- added bbox2moves() and paths2moves()
 
 import sys, re, math
 
@@ -863,7 +867,7 @@ class Ruida():
         adjusted at the machine.
   """
 
-  __version__ = "1.2"
+  __version__ = "1.4"
 
   def __init__(self, paths=None, speed=None, power=None, bbox=None, freq=20.0):
     self._paths = paths
@@ -879,13 +883,25 @@ class Ruida():
     self._body = None
     self._trailer = None
 
-  def set(self, paths=None, speed=None, power=None, bbox=None, freq=None, odo=None):
-    if paths is not None: self._paths = paths
-    if speed is not None: self._speed = speed
-    if power is not None: self._power = power
-    if bbox  is not None: self._bbox  = bbox
-    if freq  is not None: self._freq  = freq
-    if odo   is not None: self._odo   = odo
+    # Must do an absolute mov/cut every now and then to avoid precision loss.
+    # Worst case estimation: A deviation of 0.1mm is acceptable, this is circa the
+    # diameter of the laser beam. Precision loss can occur due to rounding of the last decimal,
+    # Which can contribute less than 0.001 mm each time. Thus a helpful value should be around
+    # 100. We want the value as high as possible to safe code size, but slow enough to keep the
+    # precision loss invisible.
+    #
+    # Set to 1, to disable relative moves.
+    # Set to 0, to never force an absolute move. Allows potentially infinite precision loss.
+    self._forceabs = 100
+
+  def set(self, paths=None, speed=None, power=None, bbox=None, freq=None, odo=None, forceabs=None):
+    if forceabs is not None: self._forceabs = forceabs
+    if paths    is not None: self._paths    = paths
+    if speed    is not None: self._speed    = speed
+    if power    is not None: self._power    = power
+    if bbox     is not None: self._bbox     = bbox
+    if freq     is not None: self._freq     = freq
+    if odo      is not None: self._odo      = odo
 
   def write(self, fd, scramble=True):
     """
@@ -952,9 +968,23 @@ class Ruida():
       trav_d += dist_xy(xy, init)
     return [ cut_d, trav_d ]
 
+  def paths2moves(self, paths=None):
+    """
+    Returns a list of one-element-lists, each point in any of the
+    sub-paths as a its own list. This is technique generates
+    only move instructions in the rd output (laser inactive).
+    """
+    if paths is None: paths = self._paths
+    if paths is None: raise ValueError("no paths")
+    moves = []
+    for path in paths:
+      for point in path:
+        moves.append([[point[0], point[1]]])
+    return moves
+
   def boundingbox(self, paths=None):
     """
-    Returns a list of two pairs [xmin, ymin], [xmax, ymax]]
+    Returns a list of two pairs [[xmin, ymin], [xmax, ymax]]
     that spans the rectangle containing all points found in paths.
     If no parameter is given, the _paths of the object are examined.
     """
@@ -970,7 +1000,17 @@ class Ruida():
         if point[1] < ymin: ymin = point[1]
     return [[xmin, ymin], [xmax, ymax]]
 
-  def body(self, paths, maxrel=8.191):           # 8.191 encodes as 3f 7f. A negative maxrel value forces all absolute movements.
+  def bbox2moves(self, bbox):
+    """
+    bbox = [[x0, y0], [x1, y1]]
+    """
+    x0 = bbox[0][0]
+    y0 = bbox[0][1]
+    x1 = bbox[1][0]
+    y1 = bbox[1][1]
+    return [[[x0,y0]], [[x1,y0]], [[x1,y1]], [[x0,y1]], [[x0, y0]]]
+
+  def body(self, paths):
     """
     Convert a set of paths into lasercut instructions.
     Returns the binary instruction data.
@@ -982,24 +1022,29 @@ class Ruida():
            We always use absolute moves and cuts.
     """
 
-    def relok(last, point, maxrel):
+    def relok(last, point):
       """
       Determine, if we can emit a relative move or cut command.
       An absolute move or cut costs 11 bytes,
       a relative one costs 5 bytes.
       """
+      maxrel = 8.191     # 8.191 encodes as 3f 7f. -8.191 encodes as 40 01
+
       if last is None: return False
       dx = abs(point[0]-last[0])
       dy = abs(point[1]-last[1])
       return max(dx, dy) <= maxrel
 
     data = bytes([])
+    relcounter = 0
 
     lp = None
     for path in paths:
       travel = True
       for p in path:
-        if relok(lp, p, maxrel):
+        if relok(lp, p) and (self._forceabs == 0 or relcounter < self._forceabs):
+
+          if self._forceabs > 0: relcounter += 1
 
           if p[1] == lp[1]:     # horizontal rel
             if travel:
@@ -1018,6 +1063,8 @@ class Ruida():
               data += self.enc('-rr', ['a9', p[0]-lp[0], p[1]-lp[1]])   # Cut_Rel 0.015mm -1.127mm
 
         else:
+
+          relcounter = 0
 
           if travel:
             data += self.enc('-nn', ['88', p[0], p[1]])               # Move_To_Abs 0.0mm 0.0mm
@@ -1286,7 +1333,7 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.5'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
+    __version__ = '1.6'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
 
     def __init__(self):
         """
@@ -1385,6 +1432,10 @@ Option parser example:
         self.OptionParser.add_option(
             "--bbox_only", action="store", type="inkbool", dest="bbox_only", default=False,
             help="Cut bounding box only. Default: False")
+
+        self.OptionParser.add_option(
+            "--move_only", action="store", type="inkbool", dest="move_only", default=False,
+            help="Move only, instead of cutting and moving. Default: False")
 
         self.OptionParser.add_option(
             "--dummy", action="store", type="inkbool", dest="dummy", default=False,
@@ -1504,12 +1555,20 @@ Option parser example:
                         paths_list.append(newpath)
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
-        cut_opt = self.cut_options()
+        rd = Ruida()
+        # bbox = rd.boundingbox(paths_list)     # same as above.
+
+        if self.options.bbox_only:
+                paths_list = [[ [bbox[0][0],bbox[0][1]], [bbox[1][0],bbox[0][1]], [bbox[1][0],bbox[1][1]],
+                                [bbox[0][0],bbox[1][1]], [bbox[0][0],bbox[0][1]] ]]
+        if self.options.move_only:
+                paths_list = rd.paths2moves(paths_list)
+
+        cut_opt  = self.cut_options()
         mark_opt = self.mark_options()                  # FIXME: unused
         if cut_opt is None and mark_opt is None:
           inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
           sys.exit(1)
-
         if cut_opt is not None and mark_opt is not None and cut_opt['color'] == mark_opt['color']:
           inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
           sys.exit(1)
@@ -1529,7 +1588,6 @@ Option parser example:
         else:
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
-                rd = Ruida()
                 rd.set(speed=cut_opt['speed'])
                 rd.set(power=[cut_opt['minpow'], cut_opt['maxpow']])
                 rd.set(paths=paths_list, bbox=bbox)

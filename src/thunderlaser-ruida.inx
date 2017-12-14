@@ -107,8 +107,12 @@
       <param name="maxheight" type="int" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="bbox_only" type="boolean" _gui-text="Cut bounding box only">false</param>
-      <_param name="bbox_only_help" type="description">Used for a quick test, or a clean frame cut afterwards.</_param>
+      <param name="bbox_only" type="boolean" _gui-text="Bounding box only">false</param>
+      <_param name="bbox_only_help" type="description">Used for a quick area check togehter with "Move only", or for a clean frame cut afterwards.</_param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="move_only" type="boolean" _gui-text="Move only, laser off">false</param>
+      <_param name="move_only_help" type="description">Preview. Use together with "Bounding Box" mode for a quick area check.</_param>
       <param name="spacer" type="description"> </param>
 
       <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0</param>
@@ -131,7 +135,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.5</param>
+      <param name="about_version" type="description">Version 1.6</param>
     </page>
   </param>
 

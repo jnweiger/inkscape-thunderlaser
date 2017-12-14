@@ -41,7 +41,7 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.5'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
+    __version__ = '1.6'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
 
     def __init__(self):
         """
@@ -140,6 +140,10 @@ Option parser example:
         self.OptionParser.add_option(
             "--bbox_only", action="store", type="inkbool", dest="bbox_only", default=False,
             help="Cut bounding box only. Default: False")
+
+        self.OptionParser.add_option(
+            "--move_only", action="store", type="inkbool", dest="move_only", default=False,
+            help="Move only, instead of cutting and moving. Default: False")
 
         self.OptionParser.add_option(
             "--dummy", action="store", type="inkbool", dest="dummy", default=False,
@@ -259,12 +263,20 @@ Option parser example:
                         paths_list.append(newpath)
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
-        cut_opt = self.cut_options()
+        rd = Ruida()
+        # bbox = rd.boundingbox(paths_list)     # same as above.
+
+        if self.options.bbox_only:
+                paths_list = [[ [bbox[0][0],bbox[0][1]], [bbox[1][0],bbox[0][1]], [bbox[1][0],bbox[1][1]],
+                                [bbox[0][0],bbox[1][1]], [bbox[0][0],bbox[0][1]] ]]
+        if self.options.move_only:
+                paths_list = rd.paths2moves(paths_list)
+
+        cut_opt  = self.cut_options()
         mark_opt = self.mark_options()                  # FIXME: unused
         if cut_opt is None and mark_opt is None:
           inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
           sys.exit(1)
-
         if cut_opt is not None and mark_opt is not None and cut_opt['color'] == mark_opt['color']:
           inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
           sys.exit(1)
@@ -284,7 +296,6 @@ Option parser example:
         else:
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
-                rd = Ruida()
                 rd.set(speed=cut_opt['speed'])
                 rd.set(power=[cut_opt['minpow'], cut_opt['maxpow']])
                 rd.set(paths=paths_list, bbox=bbox)
