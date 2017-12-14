@@ -18,8 +18,8 @@ OutFile "../out/${ShortName}-${AppVersion}-setup.exe"
 
 Section "${AppName}"
  ; OutPath according to http://www.inkscapeforum.com/viewtopic.php?t=4205
- SetOutPath "$PROGRAMFILES64\inkscape\share\extenstions"
- File "../../thunderlaser.py"
- File "../../thunderlaser.inx"
+ SetOutPath "$PROGRAMFILES64\inkscape\share\extensions"
+ File "thunderlaser.py"
+ File "thunderlaser.inx"
 SectionEnd
 

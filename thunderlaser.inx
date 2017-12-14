@@ -14,9 +14,9 @@
         <page name='cut_wood' gui-text='Wood'>
           <param name="cut_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
           <param name="cut_wood" type="enum" gui-text="">
-            <item value="40,50,65">40,50,65: Birch Plywood 3 mm</item>
-            <item value="30,50,65">30,50,65: Birch Plywood 4 mm</item>
-            <item value="20,50,65">20,50,65: Birch Plywood 5 mm</item>
+            <item value="40,50,65">35,50,65: Birch Plywood 3 mm</item>
+            <item value="25,50,65">25,50,65: Birch Plywood 4 mm</item>
+            <item value="20,60,70">20,60,70: Birch Plywood 5 mm</item>
            </param>
         </page>
         <page name='cut_plastics' gui-text='Plastics'>
@@ -113,8 +113,8 @@
       <_param name="move_only_help" type="description">Preview. Use together with "Bounding Box" mode for a quick area check.</_param>
       <param name="spacer" type="description"> </param>
 
-      <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0</param>
-      <_param name="device_help" type="description">USB connection or a file name.</_param>
+      <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <_param name="device_help" type="description">USB connection or a file name with a .rd extension. Windows users: please adjust the COM port.</_param>
       <param name="spacer" type="description"> </param>
 
       <param name="dummy"    type="boolean" _gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
