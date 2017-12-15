@@ -22,6 +22,7 @@
 # 2017-12-04 jw, v1.0  Refactored class InkSvg from cookiecutter extension
 # 2017-12-07 jw, v1.1  Added roundedRectBezier()
 # 2017-12-10 jw, v1.3  Added styleDasharray() with stroke-dashoffset
+# 2017-12-14 jw, v1.4  Added matchStrokeColor()
 
 import inkex
 import simplepath
@@ -37,7 +38,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.3"
+    __version__ = "1.4"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -120,6 +121,33 @@ class InkSvg():
                     new[-1].append(sub[i])
                 i+=1
         return cubicsuperpath.formatPath(new)
+
+    def matchStrokeColor(self, node, rgb, eps=85):
+        """
+        Return True if the line color found in the style attribute of elem
+        does not differ from rgb in any of the components more than eps.
+        The default eps=85 is 33% on a 0..255 scale.
+        The special cases None, False, True for rgb are interpreted logically.
+        Otherwise rgb is expected as a list of three integers in 0..255 range.
+        Missing style attribute or no or unparseable stroke elements are
+        interpreted as False.
+        Hexadecimal stroke formats of '#RRGGBB' or '#RGB' are understood.
+        """
+        if rgb is None or rgb is False: return False
+        if rgb is True: return True
+        style = simplestyle.parseStyle(node.get('style'))
+        s = style.get('stroke', '')
+        if len(s) == 7 and s[0] == '#':
+          c = ( int(s[1:3], 16), int(s[3:5], 16), int(s[5:7], 16) )
+        elif len(s) == 4 and s[0] == '#':
+          c = ( int(s[1]+s[1], 16), int(s[2]+s[2], 16), int(s[3]+s[3], 16) )
+        else:
+          return False
+        if abs(rgb[0]-c[0]) > eps: return False
+        if abs(rgb[1]-c[1]) > eps: return False
+        if abs(rgb[2]-c[2]) > eps: return False
+        return True
+
 
     def roundedRectBezier(self, x, y, w, h, rx, ry=0):
         """

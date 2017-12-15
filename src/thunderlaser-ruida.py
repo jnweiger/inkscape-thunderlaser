@@ -8,6 +8,9 @@
 # with almost identical features, but different inmplementation details. The version used here is derived from
 # inkscape-paths2openscad.
 #
+# 1.6 - cut/mark color filtering implemented via colorname2rgb() and svg.matchStrokeColor().
+#       Works with dummy device. TODO: ruida output using Layers.
+#
 # python2 compatibility:
 from __future__ import print_function
 
@@ -202,6 +205,20 @@ Option parser example:
           v = parse_str.split(',')
           return { 'speed':int(v[0]), 'minpow':int(v[1]), 'maxpow':int(v[2]), 'color':color, 'group':group }
 
+    def colorname2rgb(self, name):
+        if name is None:      return None
+        if name == 'none':    return False
+        if name == 'any':     return True
+        if name == 'red':     return [ 255, 0, 0]
+        if name == 'green':   return [ 0, 255, 0]
+        if name == 'blue':    return [ 0, 0, 255]
+        if name == 'black':   return [ 0, 0, 0]
+        if name == 'white':   return [ 255, 255, 255]
+        if name == 'cyan':    return [ 0, 255, 255]
+        if name == 'magenta': return [ 255, 0, 255]
+        if name == 'yellow':  return [ 255, 255, 0]
+        raise ValueError("unknown colorname: "+name)
+
 
     def effect(self):
         svg = InkSvg(document=self.document, smoothness=float(self.options.smoothness))
@@ -212,6 +229,17 @@ Option parser example:
         if self.options.version:
             print("Version "+self.__version__)
             sys.exit(0)
+
+        cut_opt  = self.cut_options()
+        mark_opt = self.mark_options()                  # FIXME: unused
+        if cut_opt is None and mark_opt is None:
+          inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
+          sys.exit(1)
+        if cut_opt is not None and mark_opt is not None and cut_opt['color'] == mark_opt['color']:
+          inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
+          sys.exit(1)
+        mark_color = self.colorname2rgb(None if mark_opt is None else mark_opt['color'])
+        cut_color  = self.colorname2rgb(None if  cut_opt is None else  cut_opt['color'])
 
         # First traverse the document (or selected items), reducing
         # everything to line segments.  If working on a selection,
@@ -236,7 +264,7 @@ Option parser example:
         ##
         paths_dict = {}
         for k in svg.paths:
-                kk = k.get('id', str(k))
+                kk = k  # k.get('id', str(k))
                 ll = []
                 for e in svg.paths[k]:
                         ll.append(e[0])
@@ -249,18 +277,30 @@ Option parser example:
         ## Also reposition the graphics, so that a corner or the center becomes origin [0,0]
         ## and convert from dots-per-inch to mm.
         paths_list = []
+        paths_list_cut = []
+        paths_list_mark = []
         dpi2mm = 25.4 / svg.dpi
 
         (xoff,yoff) = (svg.xmin, svg.ymin)                      # top left corner is origin
         # (xoff,yoff) = (svg.xmax, svg.ymax)                      # bottom right corner is origin
         # (xoff,yoff) = ((svg.xmax+svg.xmin)/2.0, (svg.ymax+svg.ymin)/2.0)       # center is origin
 
-        for paths in paths_dict.values():
+        for elem in paths_dict.keys():
+                paths = paths_dict[elem]
                 for path in paths:
                         newpath = []
                         for point in path:
                                 newpath.append([(point[0]-xoff) * dpi2mm, (point[1]-yoff) * dpi2mm])
                         paths_list.append(newpath)
+                        is_mark = svg.matchStrokeColor(elem, mark_color)
+                        is_cut  = svg.matchStrokeColor(elem,  cut_color)
+                        if is_cut and is_mark:          # never both. Named colors win over 'any'
+                                if mark_opt['color'] == 'any':
+                                        is_mark = False
+                                else:                   # cut_opt['color'] == 'any'
+                                        is_cut = False
+                        if is_cut:  paths_list_cut.append(newpath)
+                        if is_mark: paths_list_mark.append(newpath)
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
         rd = Ruida()
@@ -271,21 +311,6 @@ Option parser example:
                                 [bbox[0][0],bbox[1][1]], [bbox[0][0],bbox[0][1]] ]]
         if self.options.move_only:
                 paths_list = rd.paths2moves(paths_list)
-
-        cut_opt  = self.cut_options()
-        mark_opt = self.mark_options()                  # FIXME: unused
-        if cut_opt is None and mark_opt is None:
-          inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
-          sys.exit(1)
-        if cut_opt is not None and mark_opt is not None and cut_opt['color'] == mark_opt['color']:
-          inkex.errormsg(gettext.gettext('ERROR: Choose different color settings for Cut and Mark. Both are "'+mark_opt['color']+'"'))
-          sys.exit(1)
-
-        ## FIXME: separation cut/mark not impl.
-        if cut_opt is not None and mark_opt is not None:
-          inkex.errormsg(gettext.gettext('ERROR: Choose either Cut or Mark. Both together is not yet implemented. Sorry.'))
-          sys.exit(1)
-
         if cut_opt is None: cut_opt = mark_opt          # so that we have at least something to do.
 
         if self.options.dummy:
@@ -295,10 +320,15 @@ Option parser example:
                                 'cut_opt': cut_opt, 'mark_opt': mark_opt,
                                 'paths_unit': 'mm', 'svg_resolution': svg.dpi, 'svg_resolution_unit': 'dpi',
                                 'freq1': self.options.freq1, 'freq1_unit': 'kHz',
-                                'paths': paths_list
+                                'paths': paths_list,
+                                'cut':  { 'paths':paths_list_cut,  'color': cut_color  },
+                                'mark': { 'paths':paths_list_mark, 'color': mark_color },
                                 }, fd, indent=4, sort_keys=True, encoding='utf-8')
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
         else:
+                if cut_opt is not None and mark_opt is not None:
+                  inkex.errormsg(gettext.gettext('ERROR: Choose either Cut or Mark. Both together is not yet implemented. Sorry.'))
+                  sys.exit(1)
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
                 rd.set(speed=cut_opt['speed'])
