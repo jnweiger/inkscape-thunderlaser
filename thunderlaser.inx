@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <_name>Thunderlaser RUIDA (devel)</_name>
-  <id>com.github.jnweiger.inskscape-thunderlaser.devel</id>
+  <_name>Thunderlaser RUIDA</_name>
+  <id>com.github.jnweiger.inskscape-thunderlaser</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
@@ -86,6 +86,7 @@
       </param>
       <param name="spacer" type="description"> </param>
 
+      <param name="warning" type="description">WARNING: Color filtering not implemented. Can only Cut or Mark, but both is not implemented.</param>
       <param name="reference" type="description">See also: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
     </page>
 
@@ -133,7 +134,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.6</param>
+      <param name="about_version" type="description">Version 1.5a</param>
     </page>
   </param>
 
