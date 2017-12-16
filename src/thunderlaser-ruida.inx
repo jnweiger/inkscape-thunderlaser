@@ -85,6 +85,7 @@
         <item value="white">White</item>
         <item value="cyan">Cyan</item>
         <item value="magenta">Magenta</item>
+        <item value="yellow">Yellow</item>
       </param>
       <param name="spacer" type="description"> </param>
 
@@ -116,7 +117,7 @@
       <param name="spacer" type="description"> </param>
 
       <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
-      <_param name="device_help" type="description">USB connection or a file name with a .rd extension. Windows users: please adjust the COM port.</_param>
+      <_param name="device_help" type="description">USB connection or a file name with a ".rd" extension. The number of the USB or COM port may need adjustment.</_param>
       <param name="spacer" type="description"> </param>
 
       <param name="dummy"    type="boolean" _gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
@@ -128,7 +129,7 @@
 
 (C) 2017 by Jürgen Weigert [juewei@fabmail.org] and contributors.
 
-Thanks To Stefan Schuermanns for the descrambler https://stefan.schuermans.info/rdcam/ (and giving instructions with wine!)
+Thanks to Stefan Schuermanns for the descrambler https://stefan.schuermans.info/rdcam/ (and giving instructions with wine!)
 
 Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/ruida for the file format.
 </param>

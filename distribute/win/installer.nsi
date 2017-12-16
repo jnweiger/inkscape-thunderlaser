@@ -1,8 +1,8 @@
 ; documentation seen at http://nsis.sourceforge.net/Docs/Chapter2.html
  
 !define AppName "Inkscape Extension ThunderLaser"
-!define AppVersion "v1.5a"
-!define ShortName "inkscape-inkscape-thunderlaser"
+!define AppVersion "v1.5b"
+!define ShortName "inkscape-thunderlaser"
 !define Vendor "Fab Lab Region Nürnberg e.V."
 !define Author "(C) 2017 Juergen Weigert <jw@fabmail.org>"
  
