@@ -8,8 +8,10 @@
 # with almost identical features, but different inmplementation details. The version used here is derived from
 # inkscape-paths2openscad.
 #
-# 1.6 - cut/mark color filtering implemented via colorname2rgb() and svg.matchStrokeColor().
-#       Works with dummy device. TODO: ruida output using Layers.
+# 1.5a - cut/mark color filtering implemented via colorname2rgb() and svg.matchStrokeColor().
+#        Works with dummy device. TODO: ruida output using Layers.
+# 1.5b - using class Ruida through the new layer interface.
+#        TODO: ruida output using multiple layers, currently only layer 0 is used.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -44,7 +46,7 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.6'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
+    __version__ = '1.5b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
 
     def __init__(self):
         """
@@ -326,14 +328,36 @@ Option parser example:
                                 }, fd, indent=4, sort_keys=True, encoding='utf-8')
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
         else:
+                if cut_opt is None and mark_opt is None:
+                  inkex.errormsg(gettext.gettext('ERROR: Both, Mark and Cut are disabled. Nothing todo.'))
+                  sys.exit(0)
                 if cut_opt is not None and mark_opt is not None:
                   inkex.errormsg(gettext.gettext('ERROR: Choose either Cut or Mark. Both together is not yet implemented. Sorry.'))
                   sys.exit(1)
+                  nlay=2
+                else:
+                  nlay=1
+
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
-                rd.set(speed=cut_opt['speed'])
-                rd.set(power=[cut_opt['minpow'], cut_opt['maxpow']])
-                rd.set(paths=paths_list, bbox=bbox)
+                rd.set(bbox=bbox)
+                rd.set(nlayers=nlay)
+
+                l=0
+                if mark_opt is not None:
+                  rd.set(layer=l, color=[0,255,0])
+                  rd.set(layer=l, speed=mark_opt['speed'])
+                  rd.set(layer=l, power=[mark_opt['minpow'], mark_opt['maxpow']])
+                  rd.set(layer=l, paths=paths_list_mark)
+                  l += 1
+
+                if cut_opt is not None:
+                  rd.set(layer=l, color=[255,0,0])
+                  rd.set(layer=l, speed=cut_opt['speed'])
+                  rd.set(layer=l, power=[cut_opt['minpow'], cut_opt['maxpow']])
+                  rd.set(layer=l, paths=paths_list_cut)
+                  l += 1
+
                 device_used = None
                 for device in self.options.devicelist.split(','):
                     try:
