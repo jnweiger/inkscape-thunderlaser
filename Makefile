@@ -30,18 +30,18 @@ $(EXTNAME).inx:
 	# remove the ruida.py and inksvg.py dependency as they are inlined.
 	sed -e '/\(ruida\|inksvg\)\.py<.dependency/d' -i $@
 	# add a development hint, to distinguish from any simultaneously installed released version.
-	sed -e 's@</_name>@ (devel)</_name>@' -e 's@</id>@\.devel</id>@' -i $@
+	sed -e 's@</name>@ (devel)</name>@' -e 's@</id>@\.devel</id>@' -i $@
 
 $(EXTNAME)_de.inx:
 	sed -e 's/>thunderlaser\-ruida\.py</>$(EXTNAME).py</g' < src/thunderlaser-ruida_de.inx > $@
 	# remove the ruida.py and inksvg.py dependency as they are inlined.
 	sed -e '/\(ruida\|inksvg\)\.py<.dependency/d' -i $@
 	# add a development hint, to distinguish from any simultaneously installed released version.
-	sed -e 's@</_name>@ (devel)</_name>@' -e 's@</id>@\.devel</id>@' -i $@
+	sed -e 's@</name>@ (devel)</name>@' -e 's@</id>@\.devel</id>@' -i $@
 
 nodevel: $(EXTNAME).inx $(EXTNAME)_de.inx
 	# remove the development hints
-	sed -i -e 's@\s*(*devel)*</_name>@</_name>@i' -e 's@\.devel</id>@</id>@i' $(EXTNAME).inx $(EXTNAME)_de.inx
+	sed -i -e 's@\s*(*devel)*</name>@</name>@i' -e 's@\.devel</id>@</id>@i' $(EXTNAME).inx $(EXTNAME)_de.inx
 
 $(EXTNAME).py:
 	sed >  $@ -e '/INLINE_BLOCK_START/,$$d' < src/thunderlaser-ruida.py

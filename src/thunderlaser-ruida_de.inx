@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <name>Thunderlaser RUIDA</name>
+  <name>Thunderlaser RUIDA (DE)</name>
   <id>com.github.jnweiger.inskscape-thunderlaser.de</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
@@ -15,7 +15,7 @@
       <param name="cut_group" type="notebook">
         <page name='cut_wood' gui-text='Holz'>
           <param name="cut_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_wood" type="enum" gui-text="">
+          <param name="cut_wood" type="enum" gui-text="Holz:">
             <item value="40,50,65">35,50,65: Birke Sperrholz 3 mm</item>
             <item value="25,50,65">25,50,65: Birke Sperrholz 4 mm</item>
             <item value="20,60,70">20,60,70: Birke Sperrholz 5 mm</item>
@@ -23,7 +23,7 @@
         </page>
         <page name='cut_plastics' gui-text='Kunstoff'>
           <param name="cut_plastics_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_plastics" type="enum" gui-text="">
+          <param name="cut_plastics" type="enum" gui-text="Kunstoff:">
             <item value="25,55,70">25,55,70: Acryl (PMMA) 3 mm</item>
             <item value="20,55,70">20,55,70: Acryl (PMMA) 4 mm</item>
             <item value="15,55,70">15,55,70: Acryl (PMMA) 5 mm</item>
@@ -31,7 +31,7 @@
         </page>
         <page name='cut_other' gui-text='Andere '>
           <param name="cut_other_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_other" type="enum" gui-text="">
+          <param name="cut_other" type="enum" gui-text="Andere:">
             <item value="300,26,65">300,26,65: Karton (FinnP) 1 mm</item>
             <item value="80,50,70">80,50,70: Karton (FinnP) 3 mm</item>
             <item value="100,50,70">100,50,70: PU Schaum 10 mm</item>
@@ -63,7 +63,7 @@
       <param name="mark_group" type="notebook">
         <page name='mark_material' gui-text='Material'>
           <param name="mark_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="mark_material" type="enum" gui-text="">
+          <param name="mark_material" type="enum" gui-text="Material:">
             <item value="1000,8,25">1000,8,25: Birke Sperrholz</item>
             <item value="1000,7,18">1000,7,18: Karton (Finnpappe)</item>
           </param>
@@ -136,7 +136,7 @@ Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida 
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.5b</param>
+      <param name="about_version" type="description">Version 1.5c</param>
     </page>
   </param>
 

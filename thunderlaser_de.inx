@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <_name>Thunderlaser RUIDA</_name>
+  <name>Thunderlaser RUIDA (DE)</name>
   <id>com.github.jnweiger.inskscape-thunderlaser.de</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
   <param name="tab" type="notebook">
-    <page name='thunderlaser' _gui-text='Thunderlaser'>
+    <page name='thunderlaser' gui-text='Thunderlaser'>
       <param name="header_cut" type="description" appearance="header">Schneiden</param>
 
       <param name="cut_group" type="notebook">
         <page name='cut_wood' gui-text='Holz'>
           <param name="cut_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_wood" type="enum" gui-text="">
+          <param name="cut_wood" type="enum" gui-text="Holz:">
             <item value="40,50,65">35,50,65: Birke Sperrholz 3 mm</item>
             <item value="25,50,65">25,50,65: Birke Sperrholz 4 mm</item>
             <item value="20,60,70">20,60,70: Birke Sperrholz 5 mm</item>
@@ -21,7 +21,7 @@
         </page>
         <page name='cut_plastics' gui-text='Kunstoff'>
           <param name="cut_plastics_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_plastics" type="enum" gui-text="">
+          <param name="cut_plastics" type="enum" gui-text="Kunstoff:">
             <item value="25,55,70">25,55,70: Acryl (PMMA) 3 mm</item>
             <item value="20,55,70">20,55,70: Acryl (PMMA) 4 mm</item>
             <item value="15,55,70">15,55,70: Acryl (PMMA) 5 mm</item>
@@ -29,7 +29,7 @@
         </page>
         <page name='cut_other' gui-text='Andere '>
           <param name="cut_other_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_other" type="enum" gui-text="">
+          <param name="cut_other" type="enum" gui-text="Andere:">
             <item value="300,26,65">300,26,65: Karton (FinnP) 1 mm</item>
             <item value="80,50,70">80,50,70: Karton (FinnP) 3 mm</item>
             <item value="100,50,70">100,50,70: PU Schaum 10 mm</item>
@@ -61,7 +61,7 @@
       <param name="mark_group" type="notebook">
         <page name='mark_material' gui-text='Material'>
           <param name="mark_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="mark_material" type="enum" gui-text="">
+          <param name="mark_material" type="enum" gui-text="Material:">
             <item value="1000,8,25">1000,8,25: Birke Sperrholz</item>
             <item value="1000,7,18">1000,7,18: Karton (Finnpappe)</item>
           </param>
@@ -90,39 +90,39 @@
       <param name="reference" type="description">Siehe auch: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
     </page>
 
-    <page name='advanced' _gui-text='Erweitert'>
-      <param name="smoothness" type="float" min="0.0001" max="5" _gui-text="Glätten">0.2</param>
-      <_param name="smoothness_help" type="description">Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
-      </_param>
+    <page name='advanced' gui-text='Erweitert'>
+      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="Glätten">0.2</param>
+      <param name="smoothness_help" type="description">Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
+      </param>
       <param name="spacer" type="description"> </param>
 
 <!--
-      <param name="freq1" type="float" min="0" max="1000" _gui-text="Frequenz [kHz]">20.0</param>
-      <_param name="freq1_help" type="description">Frequenz Laser 1. Unbenutzt?</_param>
+      <param name="freq1" type="float" min="0" max="1000" gui-text="Frequenz [kHz]">20.0</param>
+      <param name="freq1_help" type="description">Frequenz Laser 1. Unbenutzt?</param>
       <param name="spacer" type="description"> </param>
 -->
 
-      <param name="maxwidth"  type="int" min="100" max="900" _gui-text="Breite der Laserfläche [mm]">900</param>
-      <param name="maxheight" type="int" min="100" max="600" _gui-text="Höhe der Laserfläche [mm]">600</param>
+      <param name="maxwidth"  type="int" min="100" max="900" gui-text="Breite der Laserfläche [mm]">900</param>
+      <param name="maxheight" type="int" min="100" max="600" gui-text="Höhe der Laserfläche [mm]">600</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="bbox_only" type="boolean" _gui-text="Box. Nur Umrandungslinie">false</param>
-      <_param name="bbox_only_help" type="description">Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.</_param>
+      <param name="bbox_only" type="boolean" gui-text="Box. Nur Umrandungslinie">false</param>
+      <param name="bbox_only_help" type="description">Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="move_only" type="boolean" _gui-text="Nur abfahren. Laser ist aus">false</param>
-      <_param name="move_only_help" type="description">Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.</_param>
+      <param name="move_only" type="boolean" gui-text="Nur abfahren. Laser ist aus">false</param>
+      <param name="move_only_help" type="description">Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="device"    type="string" _gui-text="Ausgabe-Gerät: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
-      <_param name="device_help" type="description">USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.</_param>
+      <param name="device"    type="string" gui-text="Ausgabe-Gerät: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <param name="device_help" type="description">USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="dummy"    type="boolean" _gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
-      <_param name="dummy_help" type="description">Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!</_param>
+      <param name="dummy" type="boolean" gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
+      <param name="dummy_help" type="description">Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!</param>
     </page>
 
-    <page name='about' _gui-text='Über '>
+    <page name='about' gui-text='Über '>
       <param name="about_who" type="description" xml:space="preserve">Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
 
 (C) 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.

@@ -12,6 +12,9 @@
 #        Works with dummy device. TODO: ruida output using Layers.
 # 1.5b - using class Ruida through the new layer interface.
 #        TODO: ruida output using multiple layers, currently only layer 0 is used.
+# 1.5c - _removed _before _tags and _attributes in *.inx, to disable false automatic translations.
+#        That does not seem to work. Strings are still subject to automatic translations.
+#        Replaced all empty gui-text="" with repetitive noise, to avoid 0.91 translating "" into a 16 lines boiler plate text.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -46,7 +49,8 @@ if sys.version_info.major < 3:
 
 class ThunderLaser(inkex.Effect):
 
-    __version__ = '1.5b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__); Keep in sync with thunderlaser-ruida.inx
+    # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
+    __version__ = '1.5c'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """

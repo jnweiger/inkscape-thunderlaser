@@ -15,7 +15,7 @@
       <param name="cut_group" type="notebook">
         <page name='cut_wood' gui-text='Wood'>
           <param name="cut_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
-          <param name="cut_wood" type="enum" gui-text="">
+          <param name="cut_wood" type="enum" gui-text="Wood:">
             <item value="40,50,65">35,50,65: Birch Plywood 3 mm</item>
             <item value="25,50,65">25,50,65: Birch Plywood 4 mm</item>
             <item value="20,60,70">20,60,70: Birch Plywood 5 mm</item>
@@ -23,7 +23,7 @@
         </page>
         <page name='cut_plastics' gui-text='Plastics'>
           <param name="cut_plastics_help" type="description">Speed,MinPower,MaxPower: Material</param>
-          <param name="cut_plastics" type="enum" gui-text="">
+          <param name="cut_plastics" type="enum" gui-text="Plastics:">
             <item value="25,55,70">25,55,70: Acrylic (PMMA) 3 mm</item>
             <item value="20,55,70">20,55,70: Acrylic (PMMA) 4 mm</item>
             <item value="15,55,70">15,55,70: Acrylic (PMMA) 5 mm</item>
@@ -31,7 +31,7 @@
         </page>
         <page name='cut_other' gui-text='Other '>
           <param name="cut_other_help" type="description">Speed,MinPower,MaxPower: Material</param>
-          <param name="cut_other" type="enum" gui-text="">
+          <param name="cut_other" type="enum" gui-text="Other:">
             <item value="300,26,65">300,26,65: Cardboard (FinnP) 1 mm</item>
             <item value="80,50,70">80,50,70: Cardboard (FinnP) 3 mm</item>
             <item value="100,50,70">100,50,70: PU foam 10 mm</item>
@@ -63,7 +63,7 @@
       <param name="mark_group" type="notebook">
         <page name='mark_material' gui-text='Material'>
           <param name="mark_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
-          <param name="mark_material" type="enum" gui-text="">
+          <param name="mark_material" type="enum" gui-text="Material:">
             <item value="1000,8,25">1000,8,25: Birch Plywood</item>
             <item value="1000,7,18">1000,7,18: Cardboard (Finnpappe)</item>
           </param>
@@ -136,7 +136,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.5b</param>
+      <param name="about_version" type="description">Version 1.5c</param>
     </page>
   </param>
 
