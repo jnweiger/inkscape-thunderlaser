@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <_name>Thunderlaser RUIDA</_name>
+  <name>Thunderlaser RUIDA</name>
   <id>com.github.jnweiger.inskscape-thunderlaser</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
@@ -9,7 +9,7 @@
   <dependency type="executable" location="extensions">ruida.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser-ruida.py</dependency>
   <param name="tab" type="notebook">
-    <page name='thunderlaser' _gui-text='Thunderlaser'>
+    <page name='thunderlaser' gui-text='Thunderlaser'>
       <param name="header_cut" type="description" appearance="header">Cut Settings</param>
 
       <param name="cut_group" type="notebook">
@@ -92,39 +92,39 @@
       <param name="reference" type="description">See also: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
     </page>
 
-    <page name='advanced' _gui-text='Advanced'>
-      <param name="smoothness" type="float" min="0.0001" max="5" _gui-text="Smoothing">0.2</param>
-      <_param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
-      </_param>
+    <page name='advanced' gui-text='Advanced'>
+      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="Smoothing">0.2</param>
+      <param name="smoothness_help" type="description">Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5
+      </param>
       <param name="spacer" type="description"> </param>
 
 <!--
-      <param name="freq1" type="float" min="0" max="1000" _gui-text="Frequency [kHz]">20.0</param>
-      <_param name="freq1_help" type="description">Laser1 frequency. Unused?</_param>
+      <param name="freq1" type="float" min="0" max="1000" gui-text="Frequency [kHz]">20.0</param>
+      <param name="freq1_help" type="description">Laser1 frequency. Unused?</param>
       <param name="spacer" type="description"> </param>
 -->
 
-      <param name="maxwidth"  type="int" min="100" max="900" _gui-text="Width of laser area [mm]">900</param>
-      <param name="maxheight" type="int" min="100" max="600" _gui-text="Height of laser area [mm]">600</param>
+      <param name="maxwidth"  type="int" min="100" max="900" gui-text="Width of laser area [mm]">900</param>
+      <param name="maxheight" type="int" min="100" max="600" gui-text="Height of laser area [mm]">600</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="bbox_only" type="boolean" _gui-text="Bounding box only">false</param>
-      <_param name="bbox_only_help" type="description">Used for a quick area check togehter with "Move only", or for a clean frame cut afterwards.</_param>
+      <param name="bbox_only" type="boolean" gui-text="Bounding box only">false</param>
+      <param name="bbox_only_help" type="description">Used for a quick area check togehter with "Move only", or for a clean frame cut afterwards.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="move_only" type="boolean" _gui-text="Move only, laser off">false</param>
-      <_param name="move_only_help" type="description">Preview. Use together with "Bounding Box" mode for a quick area check.</_param>
+      <param name="move_only" type="boolean" gui-text="Move only, laser off">false</param>
+      <param name="move_only_help" type="description">Preview. Use together with "Bounding Box" mode for a quick area check.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="device"    type="string" _gui-text="Output device: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
-      <_param name="device_help" type="description">USB connection or a file name with a ".rd" extension. The number of the USB or COM port may need adjustment.</_param>
+      <param name="device"    type="string" gui-text="Output device: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <param name="device_help" type="description">USB connection or a file name with a ".rd" extension. The number of the USB or COM port may need adjustment.</param>
       <param name="spacer" type="description"> </param>
 
-      <param name="dummy"    type="boolean" _gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
-      <_param name="dummy_help" type="description">Used for debugging and developent only!</_param>
+      <param name="dummy"    type="boolean" gui-text="Dummy device: Send json formatted data to /tmp/thunderlaser.json">false</param>
+      <param name="dummy_help" type="description">Used for debugging and developent only!</param>
     </page>
 
-    <page name='about' _gui-text='About '>
+    <page name='about' gui-text='About '>
       <param name="about_who" type="description" xml:space="preserve">inkscape-thunderlaser extension from https://github.com/jnweiger/inkscape-thunderlaser
 
 (C) 2017 by Jürgen Weigert [juewei@fabmail.org] and contributors.
