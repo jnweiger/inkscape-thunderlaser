@@ -44,9 +44,9 @@
         </page>
       </param>
 
-      <param name="cut_color" type="enum" gui-text="Nach Linienfarbe">
+      <param name="cut_color" type="enum" gui-text="Wähle Linienfarbe">
         <item value="any">Unwichtig</item>
-        <item value="none">Nichts schneiden</item>
+        <item value="none">Keine. Nichts schneiden</item>
         <item value="red">Rot</item>
         <item value="green">Grün</item>
         <item value="blue">Blau</item>
@@ -75,8 +75,8 @@
         </page>
       </param>
 
-      <param name="mark_color" type="enum" gui-text="Nach Linienfarbe">
-        <item value="none">Nichts markieren</item>
+      <param name="mark_color" type="enum" gui-text="Wähle Linienfarbe">
+        <item value="none">Keine. Nichts markieren</item>
         <item value="any">Unwichtig</item>
         <item value="red">Rot</item>
         <item value="green">Grün</item>
@@ -85,7 +85,7 @@
         <item value="white">Weiss</item>
         <item value="cyan">Cyan</item>
         <item value="magenta">Magenta</item>
-        <item value="gelb">Yellow</item>
+        <item value="yellow">Gelb</item>
       </param>
       <param name="spacer" type="description"> </param>
 
@@ -120,12 +120,12 @@
       <_param name="device_help" type="description">USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.</_param>
       <param name="spacer" type="description"> </param>
 
-      <param name="dummy"    type="boolean" _gui-text="Dummy Gerät: Es wird eine JSON Datenstruktur nach /tmp/thunderlaser.json geschrieben">false</param>
-      <_param name="dummy_help" type="description">Hilfreich für Fehlersuche und Weiterentwicklung!</_param>
+      <param name="dummy"    type="boolean" _gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
+      <_param name="dummy_help" type="description">Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!</_param>
     </page>
 
     <page name='about' _gui-text='Über '>
-      <param name="about_who" type="description" xml:space="preserve">inkscape-thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
+      <param name="about_who" type="description" xml:space="preserve">Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
 
 (C) 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.
 
