@@ -14,7 +14,10 @@
 #        TODO: ruida output using multiple layers, currently only layer 0 is used.
 # 1.5c - _removed _before _tags and _attributes in *.inx, to disable false automatic translations.
 #        That does not seem to work. Strings are still subject to automatic translations.
-#        Replaced all empty gui-text="" with repetitive noise, to avoid 0.91 translating "" into a 16 lines boiler plate text.
+#        Replaced all empty gui-text="" with repetitive noise, to avoid 0.91
+#        translating "" into a 16 lines boiler plate text.
+# 1.6  - juergen@fabmail.org
+#        multi layer support added. Can now mark and cut in one job.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -50,7 +53,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.5c'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.6'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """
@@ -336,28 +339,26 @@ Option parser example:
                   inkex.errormsg(gettext.gettext('ERROR: Both, Mark and Cut are disabled. Nothing todo.'))
                   sys.exit(0)
                 if cut_opt is not None and mark_opt is not None:
-                  inkex.errormsg(gettext.gettext('ERROR: Choose either Cut or Mark. Both together is not yet implemented. Sorry.'))
-                  sys.exit(1)
                   nlay=2
                 else:
                   nlay=1
 
                 if bbox[0][0] < 0 or bbox[0][1] < 0:
                         inkex.errormsg(gettext.gettext('Warning: negative coordinates not implemented in class Ruida(), truncating at 0'))
-                rd.set(bbox=bbox)
+                # rd.set(globalbbox=bbox)       # Not needed. Even slightly wrong.
                 rd.set(nlayers=nlay)
 
                 l=0
                 if mark_opt is not None:
-                  rd.set(layer=l, color=[0,255,0])
-                  rd.set(layer=l, speed=mark_opt['speed'])
+                  cc = mark_color if type(mark_color) == list else [128,0,64]
+                  rd.set(layer=l, speed=mark_opt['speed'], color=cc)
                   rd.set(layer=l, power=[mark_opt['minpow'], mark_opt['maxpow']])
                   rd.set(layer=l, paths=paths_list_mark)
                   l += 1
 
                 if cut_opt is not None:
-                  rd.set(layer=l, color=[255,0,0])
-                  rd.set(layer=l, speed=cut_opt['speed'])
+                  cc = cut_color if type(cut_color) == list else [128,0,64]
+                  rd.set(layer=l, speed=cut_opt['speed'], color=cc)
                   rd.set(layer=l, power=[cut_opt['minpow'], cut_opt['maxpow']])
                   rd.set(layer=l, paths=paths_list_cut)
                   l += 1
