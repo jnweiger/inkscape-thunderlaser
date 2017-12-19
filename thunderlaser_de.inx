@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <name>Thunderlaser RUIDA (DE)</name>
-  <id>com.github.jnweiger.inskscape-thunderlaser.de</id>
+  <name>Thunderlaser RUIDA (DE) (devel)</name>
+  <id>com.github.jnweiger.inskscape-thunderlaser.de.devel</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
@@ -92,7 +92,8 @@
 
     <page name='advanced' gui-text='Erweitert'>
       <param name="smoothness" type="float" min="0.0001" max="5" gui-text="Glätten">0.2</param>
-      <param name="smoothness_help" type="description">Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
+      <param name="smoothness_help" type="description">
+Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
       </param>
       <param name="spacer" type="description"> </param>
 
@@ -107,19 +108,27 @@
       <param name="spacer" type="description"> </param>
 
       <param name="bbox_only" type="boolean" gui-text="Box. Nur Umrandungslinie">false</param>
-      <param name="bbox_only_help" type="description">Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.</param>
+      <param name="bbox_only_help" type="description">
+Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.
+      </param>
       <param name="spacer" type="description"> </param>
 
       <param name="move_only" type="boolean" gui-text="Nur abfahren. Laser ist aus">false</param>
-      <param name="move_only_help" type="description">Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.</param>
+      <param name="move_only_help" type="description">
+Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.
+      </param>
       <param name="spacer" type="description"> </param>
 
       <param name="device"    type="string" gui-text="Ausgabe-Gerät: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
-      <param name="device_help" type="description">USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.</param>
+      <param name="device_help" type="description">
+USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.
+      </param>
       <param name="spacer" type="description"> </param>
 
       <param name="dummy" type="boolean" gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
-      <param name="dummy_help" type="description">Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!</param>
+      <param name="dummy_help" type="description">
+Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!
+      </param>
     </page>
 
     <page name='about' gui-text='Über '>

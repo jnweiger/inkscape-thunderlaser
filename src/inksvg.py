@@ -122,17 +122,25 @@ class InkSvg():
                 i+=1
         return cubicsuperpath.formatPath(new)
 
-    def matchStrokeColor(self, node, rgb, eps=85):
+    def matchStrokeColor(self, node, rgb, eps=None, avg=True):
         """
         Return True if the line color found in the style attribute of elem
         does not differ from rgb in any of the components more than eps.
-        The default eps=85 is 33% on a 0..255 scale.
+        The default eps with avg=True is 64.
+        With avg=False the default is eps=85 (33% on a 0..255 scale).
+
+        In avg mode, the average of all three color channel differences is
+        compared against eps. Otherwise each color channel difference is
+        compared individually.
+
         The special cases None, False, True for rgb are interpreted logically.
         Otherwise rgb is expected as a list of three integers in 0..255 range.
         Missing style attribute or no or unparseable stroke elements are
         interpreted as False.
         Hexadecimal stroke formats of '#RRGGBB' or '#RGB' are understood.
         """
+        if eps is None:
+          eps = 64 if avg == True else 85
         if rgb is None or rgb is False: return False
         if rgb is True: return True
         style = simplestyle.parseStyle(node.get('style'))
@@ -143,6 +151,11 @@ class InkSvg():
           c = ( int(s[1]+s[1], 16), int(s[2]+s[2], 16), int(s[3]+s[3], 16) )
         else:
           return False
+        if sum:
+           s = abs(rgb[0]-c[0]) + abs(rgb[1]-c[1]) + abs(rgb[2]-c[2])
+           if s < 3*eps:
+             return True
+           return False
         if abs(rgb[0]-c[0]) > eps: return False
         if abs(rgb[1]-c[1]) > eps: return False
         if abs(rgb[2]-c[2]) > eps: return False

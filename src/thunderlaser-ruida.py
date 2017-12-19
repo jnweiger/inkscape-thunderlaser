@@ -350,6 +350,9 @@ Option parser example:
 
                 l=0
                 if mark_opt is not None:
+                  if len(paths_list_mark) == 0:
+                    inkex.errormsg(gettext.gettext('ERROR: mark line color "'+mark_opt['color']+'": nothing found.'))
+                    sys.exit(0)
                   cc = mark_color if type(mark_color) == list else [128,0,64]
                   rd.set(layer=l, speed=mark_opt['speed'], color=cc)
                   rd.set(layer=l, power=[mark_opt['minpow'], mark_opt['maxpow']])
@@ -357,6 +360,9 @@ Option parser example:
                   l += 1
 
                 if cut_opt is not None:
+                  if len(paths_list_cut) == 0:
+                    inkex.errormsg(gettext.gettext('ERROR: cut line color "'+cut_opt['color']+'": nothing found.'))
+                    sys.exit(0)
                   cc = cut_color if type(cut_color) == list else [128,0,64]
                   rd.set(layer=l, speed=cut_opt['speed'], color=cc)
                   rd.set(layer=l, power=[cut_opt['minpow'], cut_opt['maxpow']])
@@ -365,14 +371,16 @@ Option parser example:
 
                 device_used = None
                 for device in self.options.devicelist.split(','):
+                    fd = None
                     try:
-                        with open(device, 'wb') as fd:
-                            rd.write(fd)
+                        fd = open(device, 'wb')
+                    except:
+                        pass
+                    if fd is not None:
+                        rd.write(fd)
                         print(device+" written.", file=sys.stderr)
                         device_used = device
                         break
-                    except:
-                        pass
                 if device_used is None:
                         inkex.errormsg(gettext.gettext('Warning: no usable devices in device list (or bad directoy): '+self.options.devicelist))
 
