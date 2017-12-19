@@ -98,7 +98,7 @@ class InkSvg():
         for sub in p:
             idash = 0
             dash = dashes[0]
-            print("initial dash length: ", dash, dashoffset)
+            # print("initial dash length: ", dash, dashoffset)
             dash = dash - dashoffset
             length = 0
             new.append([sub[0][:]])
@@ -584,8 +584,9 @@ class InkSvg():
                 # fourth side implicitly
 
                 # Create a path with the outline of the rectangle
-                x = float(node.get('x'))
-                y = float(node.get('y'))
+                # Adobe Illustrator leaves out 'x'='0'.
+                x = float(node.get('x', '0'))
+                y = float(node.get('y', '0'))
                 w = float(node.get('width', '0'))
                 h = float(node.get('height', '0'))
                 rx = float(node.get('rx', '0'))

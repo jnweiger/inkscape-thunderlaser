@@ -56,7 +56,7 @@
       </param>
       <param name="spacer" type="description"> </param>
 
-      <param name="header_mark" type="description" appearance="header">Gravieren</param>
+      <param name="header_mark" type="description" appearance="header">Markieren</param>
 
       <param name="mark_group" type="notebook">
         <page name='mark_material' gui-text='Material'>
