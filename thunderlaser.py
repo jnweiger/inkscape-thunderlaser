@@ -18,6 +18,8 @@
 #        translating "" into a 16 lines boiler plate text.
 # 1.6  - juergen@fabmail.org
 #        multi layer support added. Can now mark and cut in one job.
+# 1.6a - bugfix release: [ ] bbox, [ ] move only, did always cut.
+#        Updated InkSvg() class preserves native order of SVG elements.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -58,6 +60,8 @@ else:   # Linux
 # 2017-12-07 jw, v1.1  Added roundedRectBezier()
 # 2017-12-10 jw, v1.3  Added styleDasharray() with stroke-dashoffset
 # 2017-12-14 jw, v1.4  Added matchStrokeColor()
+# 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
+#                      a dictionary. (Preserving native ordering)
 
 import inkex
 import simplepath
@@ -73,7 +77,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.4"
+    __version__ = "1.5"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -302,11 +306,10 @@ class InkSvg():
         self.document = document        # from  inkex.Effect.parse()
         self.smoothness = smoothness    # 0.0001 .. 5.0
 
-        # Dictionary of paths we will construct.  It's keyed by the SVG node
-        # it came from.  Such keying isn't too useful in this specific case,
-        # but it can be useful in other applications when you actually want
-        # to go back and update the SVG document
-        self.paths = {}
+        # List of paths we will construct.  Path lists are paired with the SVG node
+        # they came from.  Such pairing can be useful when you actually want
+        # to go back and update the SVG document, or retrieve e.g. style information.
+        self.paths = []
 
         # For handling an SVG viewbox attribute, we will need to know the
         # values of the document's <svg> width and height attributes as well
@@ -436,6 +439,11 @@ class InkSvg():
         subpaths, each subpath consisting of absolute move to and line
         to coordinates.  Place these coordinates into a list of polygon
         vertices.
+
+        The result is appended to self.paths as a two-element tuple of the
+        form (node, path_list). This preserves the native ordering of
+        the SVG file as much as possible, while still making all attributes
+        if the node available when processing the path list.
         '''
 
         if (not path) or (len(path) == 0):
@@ -518,7 +526,7 @@ class InkSvg():
             subpath_list.append([subpath_vertices, [sp_xmin, sp_xmax, sp_ymin, sp_ymax]])
 
         if len(subpath_list) > 0:
-            self.paths[node] = subpath_list
+            self.paths.append( (node, subpath_list) )
 
 
     def recursivelyTraverseSvg(self, aNodeList, matCurrent=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -527,8 +535,10 @@ class InkSvg():
         '''
         [ This too is largely lifted from eggbot.py ]
 
-        Recursively walk the SVG document, building polygon vertex lists
-        for each graphical element we support.
+        Recursively walk the SVG document aNodeList, building polygon vertex lists
+        for each graphical element we support. The list is generated in self.paths
+        as a list of tuples [ (node, path_list), (node, path_list), ...] ordered
+        natively by their order of appearance in the SVG document.
 
         Rendered SVG elements:
             <circle>, <ellipse>, <line>, <path>, <polygon>, <polyline>, <rect>
@@ -1504,7 +1514,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.6'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.6a'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """
@@ -1716,26 +1726,25 @@ Option parser example:
             svg.recursivelyTraverseSvg(self.document.getroot(), svg.docTransform)
 
 
-        ## First simplification: paths_dict[]
+        ## First simplification: paths_tupls[]
         ## Remove the bounding boxes from paths. Replace the object with its id. We can still access color and style attributes through the id.
-        ## from {<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>:
-        ##                  [[[[207, 744], [264, 801]], [207, 264, 744, 801]], [[[207, 801], [264, 744]], [207, 264, 744, 801]]], ... }
-        ## to   {"path4490": [[[207, 744], [264, 801]],                         [[207, 801], [264, 744]]], ... }
+        ## from (<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>,
+        ##                  [[[[207, 744], [264, 801]], [207, 264, 744, 801]], [[[207, 801], [264, 744]], [207, 264, 744, 801]], ...])
+        ## to   (<Element {http://www.w3.org/2000/svg}path at 0x7fc446a583b0>,
+        ##                  [[[207, 744], [264, 801]],                         [[207, 801], [264, 744]]], ... ]
         ##
-        paths_dict = {}
-        for k in svg.paths:
-                kk = k  # k.get('id', str(k))
+        paths_tupls = []
+        for tup in svg.paths:
+                node = tup[0]
                 ll = []
-                for e in svg.paths[k]:
+                for e in tup[1]:
                         ll.append(e[0])
-                paths_dict[kk] = ll
+                paths_tupls.append( (node, ll) )
+        self.paths = None       # free some memory
 
-        ## Second simplification: paths_list[]
-        ## Remove the keys. Leaving a simple list of lists, without color or other style attributes.
-        ## to                [[[207, 744], [264, 801]],                         [[207, 801], [264, 744]], [...] ]
-        ##
-        ## Also reposition the graphics, so that a corner or the center becomes origin [0,0]
-        ## and convert from dots-per-inch to mm.
+        ## Reposition the graphics, so that a corner or the center becomes origin [0,0]
+        ## Convert from dots-per-inch to mm.
+        ## Separate into Cut and Mark lists based on element style.
         paths_list = []
         paths_list_cut = []
         paths_list_mark = []
@@ -1745,8 +1754,8 @@ Option parser example:
         # (xoff,yoff) = (svg.xmax, svg.ymax)                      # bottom right corner is origin
         # (xoff,yoff) = ((svg.xmax+svg.xmin)/2.0, (svg.ymax+svg.ymin)/2.0)       # center is origin
 
-        for elem in paths_dict.keys():
-                paths = paths_dict[elem]
+        for tupl in paths_tupls:
+                (elem,paths) = tupl
                 for path in paths:
                         newpath = []
                         for point in path:
@@ -1761,6 +1770,7 @@ Option parser example:
                                         is_cut = False
                         if is_cut:  paths_list_cut.append(newpath)
                         if is_mark: paths_list_mark.append(newpath)
+        paths_tupls = None      # save some memory
         bbox = [[(svg.xmin-xoff)*dpi2mm, (svg.ymin-yoff)*dpi2mm], [(svg.xmax-xoff)*dpi2mm, (svg.ymax-yoff)*dpi2mm]]
 
         rd = Ruida()
@@ -1769,8 +1779,14 @@ Option parser example:
         if self.options.bbox_only:
                 paths_list = [[ [bbox[0][0],bbox[0][1]], [bbox[1][0],bbox[0][1]], [bbox[1][0],bbox[1][1]],
                                 [bbox[0][0],bbox[1][1]], [bbox[0][0],bbox[0][1]] ]]
+                paths_list_cut = paths_list
+                paths_list_mark = paths_list
+                if cut_opt is not None and mark_opt is not None:
+                        mark_opt = None         # once is enough.
         if self.options.move_only:
-                paths_list = rd.paths2moves(paths_list)
+                paths_list      = rd.paths2moves(paths_list)
+                paths_list_cut  = rd.paths2moves(paths_list_cut)
+                paths_list_mark = rd.paths2moves(paths_list_mark)
         if cut_opt is None: cut_opt = mark_opt          # so that we have at least something to do.
 
         if self.options.dummy:

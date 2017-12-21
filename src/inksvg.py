@@ -23,6 +23,8 @@
 # 2017-12-07 jw, v1.1  Added roundedRectBezier()
 # 2017-12-10 jw, v1.3  Added styleDasharray() with stroke-dashoffset
 # 2017-12-14 jw, v1.4  Added matchStrokeColor()
+# 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
+#                      a dictionary. (Preserving native ordering)
 
 import inkex
 import simplepath
@@ -38,7 +40,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.4"
+    __version__ = "1.5"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -267,11 +269,10 @@ class InkSvg():
         self.document = document        # from  inkex.Effect.parse()
         self.smoothness = smoothness    # 0.0001 .. 5.0
 
-        # Dictionary of paths we will construct.  It's keyed by the SVG node
-        # it came from.  Such keying isn't too useful in this specific case,
-        # but it can be useful in other applications when you actually want
-        # to go back and update the SVG document
-        self.paths = {}
+        # List of paths we will construct.  Path lists are paired with the SVG node
+        # they came from.  Such pairing can be useful when you actually want
+        # to go back and update the SVG document, or retrieve e.g. style information.
+        self.paths = []
 
         # For handling an SVG viewbox attribute, we will need to know the
         # values of the document's <svg> width and height attributes as well
@@ -401,6 +402,11 @@ class InkSvg():
         subpaths, each subpath consisting of absolute move to and line
         to coordinates.  Place these coordinates into a list of polygon
         vertices.
+
+        The result is appended to self.paths as a two-element tuple of the
+        form (node, path_list). This preserves the native ordering of
+        the SVG file as much as possible, while still making all attributes
+        if the node available when processing the path list.
         '''
 
         if (not path) or (len(path) == 0):
@@ -483,7 +489,7 @@ class InkSvg():
             subpath_list.append([subpath_vertices, [sp_xmin, sp_xmax, sp_ymin, sp_ymax]])
 
         if len(subpath_list) > 0:
-            self.paths[node] = subpath_list
+            self.paths.append( (node, subpath_list) )
 
 
     def recursivelyTraverseSvg(self, aNodeList, matCurrent=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -492,8 +498,10 @@ class InkSvg():
         '''
         [ This too is largely lifted from eggbot.py ]
 
-        Recursively walk the SVG document, building polygon vertex lists
-        for each graphical element we support.
+        Recursively walk the SVG document aNodeList, building polygon vertex lists
+        for each graphical element we support. The list is generated in self.paths
+        as a list of tuples [ (node, path_list), (node, path_list), ...] ordered
+        natively by their order of appearance in the SVG document.
 
         Rendered SVG elements:
             <circle>, <ellipse>, <line>, <path>, <polygon>, <polyline>, <rect>

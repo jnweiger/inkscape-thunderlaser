@@ -145,7 +145,7 @@ Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida 
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.6</param>
+      <param name="about_version" type="description">Version 1.6a</param>
     </page>
   </param>
 

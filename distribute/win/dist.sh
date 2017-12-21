@@ -12,7 +12,7 @@ cp ../../thunderlaser.inx .
 cp ../../thunderlaser_de.inx .
 
 # Rainer: In den USB Pfad muss man schreiben /COMx
-sed -i -e 's@>/dev/ttyUSB0.*<@>/COM1<@' thunderlaser.inx installer_de.nsi
+sed -i -e 's@>/dev/ttyUSB0.*<@>/COM1<@' thunderlaser.inx thunderlaser_de.inx
 
 makensis installer.nsi
 makensis installer_de.nsi
