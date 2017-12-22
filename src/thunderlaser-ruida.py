@@ -18,7 +18,7 @@
 #        translating "" into a 16 lines boiler plate text.
 # 1.6  - juergen@fabmail.org
 #        multi layer support added. Can now mark and cut in one job.
-# 1.6a - bugfix release: [ ] bbox, [ ] move only, did always cut.
+# 1.6b - bugfix release: [ ] bbox, [ ] move only, did always cut.
 #        Updated InkSvg() class preserves native order of SVG elements.
 #
 # python2 compatibility:
@@ -55,7 +55,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.6a'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.6b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """

@@ -25,6 +25,7 @@
 # 2017-12-14 jw, v1.4  Added matchStrokeColor()
 # 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
 #                      a dictionary. (Preserving native ordering)
+# 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
 
 import inkex
 import simplepath
@@ -40,7 +41,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.5"
+    __version__ = "1.6"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -566,7 +567,7 @@ class InkSvg():
                     y = float(node.get('y', '0'))
                     # Note: the transform has already been applied
                     if (x != 0) or (y != 0):
-                        matNew2 = composeTransform(matNew, parseTransform('translate(%f,%f)' % (x, y)))
+                        matNew2 = simpletransform.composeTransform(matNew, simpletransform.parseTransform('translate(%f,%f)' % (x, y)))
                     else:
                         matNew2 = matNew
                     v = node.get('visibility', v)

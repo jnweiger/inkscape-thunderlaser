@@ -18,7 +18,7 @@
 #        translating "" into a 16 lines boiler plate text.
 # 1.6  - juergen@fabmail.org
 #        multi layer support added. Can now mark and cut in one job.
-# 1.6a - bugfix release: [ ] bbox, [ ] move only, did always cut.
+# 1.6b - bugfix release: [ ] bbox, [ ] move only, did always cut.
 #        Updated InkSvg() class preserves native order of SVG elements.
 #
 # python2 compatibility:
@@ -62,6 +62,7 @@ else:   # Linux
 # 2017-12-14 jw, v1.4  Added matchStrokeColor()
 # 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
 #                      a dictionary. (Preserving native ordering)
+# 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
 
 import inkex
 import simplepath
@@ -77,7 +78,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.5"
+    __version__ = "1.6"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -603,7 +604,7 @@ class InkSvg():
                     y = float(node.get('y', '0'))
                     # Note: the transform has already been applied
                     if (x != 0) or (y != 0):
-                        matNew2 = composeTransform(matNew, parseTransform('translate(%f,%f)' % (x, y)))
+                        matNew2 = simpletransform.composeTransform(matNew, simpletransform.parseTransform('translate(%f,%f)' % (x, y)))
                     else:
                         matNew2 = matNew
                     v = node.get('visibility', v)
@@ -1514,7 +1515,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.6a'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.6b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """

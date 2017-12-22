@@ -14,7 +14,7 @@
         <page name='cut_wood' gui-text='Wood'>
           <param name="cut_settings_help" type="description">Speed,MinPower,MaxPower: Material</param>
           <param name="cut_wood" type="enum" gui-text="Wood:">
-            <item value="40,50,65">35,50,65: Birch Plywood 3 mm</item>
+            <item value="35,50,65">35,50,65: Birch Plywood 3 mm</item>
             <item value="25,50,65">25,50,65: Birch Plywood 4 mm</item>
             <item value="20,60,70">20,60,70: Birch Plywood 5 mm</item>
            </param>
@@ -134,7 +134,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.6a</param>
+      <param name="about_version" type="description">Version 1.6b</param>
     </page>
   </param>
 

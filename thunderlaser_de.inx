@@ -14,7 +14,7 @@
         <page name='cut_wood' gui-text='Holz'>
           <param name="cut_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
           <param name="cut_wood" type="enum" gui-text="Holz:">
-            <item value="40,50,65">35,50,65: Birke Sperrholz 3 mm</item>
+            <item value="35,50,65">35,50,65: Birke Sperrholz 3 mm</item>
             <item value="25,50,65">25,50,65: Birke Sperrholz 4 mm</item>
             <item value="20,60,70">20,60,70: Birke Sperrholz 5 mm</item>
            </param>
@@ -143,7 +143,7 @@ Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida 
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.6a</param>
+      <param name="about_version" type="description">Version 1.6b</param>
     </page>
   </param>
 
