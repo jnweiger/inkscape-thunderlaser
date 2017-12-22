@@ -38,7 +38,7 @@
           </param>
         </page>
         <page name='cut_manual' gui-text='Speed/Power'>
-          <param name="cut_manual_speed" type="int" min="2" max="1000" appearance="full" gui-text="Speed [mm/s]:  ">30</param>
+          <param name="cut_manual_speed" type="int" min="2" max="200" appearance="full" gui-text="Speed [mm/s]:  ">30</param>
           <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinPower %:    ">50</param>
           <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxPower %:    ">70</param>
         </page>
