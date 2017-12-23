@@ -45,6 +45,10 @@ class InkSvg():
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
+    def getNodeStyle(self, node):
+        # FIXME: this should also include css via node.get('class', '')
+        return simplestyle.parseStyle(node.get('style', ''))
+
     def styleDasharray(self, path_d, node):
         """
         Check the style of node for a stroke-dasharray, and apply it to the
@@ -81,7 +85,7 @@ class InkSvg():
             bez = (sp1[1][:],sp1[2][:],sp2[0][:],sp2[1][:])
             return bezmisc.bezierlength(bez, tolerance)
 
-        style = simplestyle.parseStyle(node.get('style'))
+        style = self.getNodeStyle(node)
         if not style.has_key('stroke-dasharray'):
             return path_d
         dashes = []
@@ -146,7 +150,7 @@ class InkSvg():
           eps = 64 if avg == True else 85
         if rgb is None or rgb is False: return False
         if rgb is True: return True
-        style = simplestyle.parseStyle(node.get('style'))
+        style = self.getNodeStyle(node)
         s = style.get('stroke', '')
         if len(s) == 7 and s[0] == '#':
           c = ( int(s[1:3], 16), int(s[3:5], 16), int(s[5:7], 16) )
@@ -520,15 +524,15 @@ class InkSvg():
         for node in aNodeList:
 
             # Ignore invisible nodes
-            v = node.get('visibility', parent_visibility)
-            if v == 'inherit':
-                v = parent_visibility
-            if v == 'hidden' or v == 'collapse':
+            visibility = node.get('visibility', parent_visibility)
+            if visibility == 'inherit':
+                visibility = parent_visibility
+            if visibility == 'hidden' or visibility == 'collapse':
                 continue
 
-            s = node.get('style', '')
-            if s == 'display:none':
-                continue
+            # FIXME: should we inherit styles from parents?
+            s = self.getNodeStyle(node)
+            if s.get('display', '') == 'none': continue
 
             # First apply the current matrix transform to this node's tranform
             matNew = simpletransform.composeTransform(
@@ -536,7 +540,7 @@ class InkSvg():
 
             if node.tag == inkex.addNS('g', 'svg') or node.tag == 'g':
 
-                self.recursivelyTraverseSvg(node, matNew, v)
+                self.recursivelyTraverseSvg(node, matNew, visibility)
 
             elif node.tag == inkex.addNS('use', 'svg') or node.tag == 'use':
 
@@ -570,8 +574,8 @@ class InkSvg():
                         matNew2 = simpletransform.composeTransform(matNew, simpletransform.parseTransform('translate(%f,%f)' % (x, y)))
                     else:
                         matNew2 = matNew
-                    v = node.get('visibility', v)
-                    self.recursivelyTraverseSvg(refnode, matNew2, v)
+                    visibility = node.get('visibility', visibility)
+                    self.recursivelyTraverseSvg(refnode, matNew2, visibility)
 
             elif node.tag == inkex.addNS('path', 'svg'):
 
@@ -724,7 +728,7 @@ class InkSvg():
                 pass
 
             elif node.tag == inkex.addNS('defs', 'svg') or node.tag == 'defs':
-                pass
+                self.recursivelyTraverseSvg(node, matNew, visibility)
 
             elif node.tag == inkex.addNS('desc', 'svg') or node.tag == 'desc':
                 pass
@@ -772,7 +776,16 @@ class InkSvg():
             elif node.tag == inkex.addNS('style', 'svg') or node.tag == 'style':
                 # This is a reference to an external style sheet and not the
                 # value of a style attribute to be inherited by child elements
-                pass
+                #
+                #   <style type="text/css">
+                #    <![CDATA[
+                #     .str0 {stroke:red;stroke-width:20}
+                #     .fil0 {fill:none}
+                #    ]]>
+                #
+                # FIXME: test/test_styles.sh fails without this.
+                # This is input for self.getNodeStyle()
+                inkex.errormsg("Warning: Corel-style CSS definitions ignored. Parsing 'style' element not implemented.")
 
             elif node.tag == inkex.addNS('cursor', 'svg') or node.tag == 'cursor':
                 pass

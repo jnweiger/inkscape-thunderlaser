@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<!-- Creator: CorelDRAW X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="210mm" height="297mm" version="1.0" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 21000 29700"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:blue;stroke-width:20}
+    .str1 {stroke:lime;stroke-width:20}
+    .str0 {stroke:red;stroke-width:20}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="Ebene_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <rect class="fil0 str0" x="1589" y="1719" width="15532" height="4534"/>
+  <ellipse class="fil0 str1" cx="11869" cy="10765" rx="5567" ry="3434"/>
+  <polygon class="fil0 str2" points="4081,7780 5116,8625 6151,9470 5756,10838 5360,12206 4081,12206 2801,12206 2405,10838 2010,9470 3045,8625 "/>
+ </g>
+</svg>

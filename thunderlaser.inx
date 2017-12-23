@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <name>Thunderlaser RUIDA</name>
-  <id>com.github.jnweiger.inskscape-thunderlaser</id>
+  <name>Thunderlaser RUIDA (devel)</name>
+  <id>com.github.jnweiger.inskscape-thunderlaser.devel</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
