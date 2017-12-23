@@ -63,6 +63,7 @@ else:   # Linux
 # 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
 #                      a dictionary. (Preserving native ordering)
 # 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
+# 2017-12-23 jw, v1.7  Added getNodeStyle(), added a warning message for not-implemented CSS styles.
 
 import inkex
 import simplepath
@@ -78,7 +79,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.6"
+    __version__ = "1.7"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
