@@ -26,7 +26,8 @@
 # 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
 #                      a dictionary. (Preserving native ordering)
 # 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
-# 2017-12-23 jw, v1.7  Added getNodeStyle(), added a warning message for not-implemented CSS styles.
+# 2017-12-25 jw, v1.7  Added getNodeStyle(), cssDictAdd(), expanded matchStrokeColor() to use
+#                      inline style defs. Added a warning message for not-implemented CSS styles.
 
 import inkex
 import simplepath
@@ -39,6 +40,8 @@ import bezmisc
 import gettext
 import re
 
+
+
 class InkSvg():
     """
     """
@@ -47,8 +50,22 @@ class InkSvg():
     DEFAULT_HEIGHT = 100
 
     def getNodeStyle(self, node):
-        # FIXME: this should also include css via node.get('class', '')
-        return simplestyle.parseStyle(node.get('style', ''))
+        """
+        Finds style declarations by .class, #id or by tag.class syntax,
+        and of course by a direct style='...' attribute.
+        """
+        sheet = ''
+        classes = node.get('class', '')
+        selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
+        selectors += [node.tag+sel for sel in selectors]
+        node_id = node.get('id', '')
+        if node_id != '':
+            selectors += [ "#"+node_id ]
+        for sel in selectors:
+            if sel in self.css_dict:
+                sheet += '; '+self.css_dict[sel]
+        sheet += '; '+node.get('style', '')
+        return simplestyle.parseStyle(sheet)
 
     def styleDasharray(self, path_d, node):
         """
@@ -143,9 +160,10 @@ class InkSvg():
 
         The special cases None, False, True for rgb are interpreted logically.
         Otherwise rgb is expected as a list of three integers in 0..255 range.
-        Missing style attribute or no or unparseable stroke elements are
-        interpreted as False.
-        Hexadecimal stroke formats of '#RRGGBB' or '#RGB' are understood.
+        Missing style attribute or no stroke element is interpreted as False.
+        Unparseable stroke elements are interpreted as 'black' (0,0,0).
+        Hexadecimal stroke formats of '#RRGGBB' or '#RGB' are understood
+        as well as 'rgb(100%, 0%, 0%) or 'red' relying on simplestyle.
         """
         if eps is None:
           eps = 64 if avg == True else 85
@@ -153,12 +171,8 @@ class InkSvg():
         if rgb is True: return True
         style = self.getNodeStyle(node)
         s = style.get('stroke', '')
-        if len(s) == 7 and s[0] == '#':
-          c = ( int(s[1:3], 16), int(s[3:5], 16), int(s[5:7], 16) )
-        elif len(s) == 4 and s[0] == '#':
-          c = ( int(s[1]+s[1], 16), int(s[2]+s[2], 16), int(s[3]+s[3], 16) )
-        else:
-          return False
+        if s == '': return False
+        c = simplestyle.parseColor(s)
         if sum:
            s = abs(rgb[0]-c[0]) + abs(rgb[1]-c[1]) + abs(rgb[2]-c[2])
            if s < 3*eps:
@@ -168,6 +182,30 @@ class InkSvg():
         if abs(rgb[1]-c[1]) > eps: return False
         if abs(rgb[2]-c[2]) > eps: return False
         return True
+
+    def cssDictAdd(self, text):
+        """
+        Represent css cdata as a hash in css_dict.
+        Implements what is seen on: http://www.blooberry.com/indexdot/css/examples/cssembedded.htm
+        """
+        text=re.sub('^\s*(<!--)?\s*', '', text)
+        while True:
+            try:
+                (keys, rest) = text.split('{', 1)
+            except:
+                break
+            keys = re.sub('/\*.*?\*/', ' ', keys)   # replace comments with whitespace
+            keys = re.split('[\s,]+', keys)         # convert to list
+            while '' in keys:
+                keys.remove('')                     # remove empty elements (at start or end)
+            (val,text) = rest.split('}', 1)
+            val = re.sub('/\*.*?\*/', '', val)      # replace comments nothing in values
+            val = re.sub('\s+', ' ', val).strip()   # normalize whitespace
+            for k in keys:
+                if not k in self.css_dict:
+                    self.css_dict[k] = val
+                else:
+                    self.css_dict[k] += '; '+val
 
 
     def roundedRectBezier(self, x, y, w, h, rx, ry=0):
@@ -279,6 +317,9 @@ class InkSvg():
         # they came from.  Such pairing can be useful when you actually want
         # to go back and update the SVG document, or retrieve e.g. style information.
         self.paths = []
+
+        # cssDictAdd collects style definitions here:
+        self.css_dict = {}
 
         # For handling an SVG viewbox attribute, we will need to know the
         # values of the document's <svg> width and height attributes as well
@@ -786,7 +827,10 @@ class InkSvg():
                 #
                 # FIXME: test/test_styles.sh fails without this.
                 # This is input for self.getNodeStyle()
-                inkex.errormsg("Warning: Corel-style CSS definitions ignored. Parsing 'style' element not implemented.")
+                if node.get('type', '') == "text/css":
+                    self.cssDictAdd(node.text)
+                else:
+                    inkex.errormsg("Warning: Corel-style CSS definitions ignored. Parsing element 'style' with type='%s' not implemented." % node.get('type', ''))
 
             elif node.tag == inkex.addNS('cursor', 'svg') or node.tag == 'cursor':
                 pass

@@ -20,6 +20,7 @@
 #        multi layer support added. Can now mark and cut in one job.
 # 1.6b - bugfix release: [ ] bbox, [ ] move only, did always cut.
 #        Updated InkSvg() class preserves native order of SVG elements.
+# 1.7  - Updated InkSvg() class to use inline style defs by class name, tag or id.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -55,7 +56,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.6b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.7'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """

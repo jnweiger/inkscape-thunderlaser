@@ -92,8 +92,11 @@ def show_poly(canvas, path = [(0,0),(20,0),(10,20),(0,0)], xoff=0, yoff=0, idx=1
 data = json.load(open(sys.argv[1]))
 idx = 1
 data['paths'] = data['mark']['paths'] + data['cut']['paths']
-for path in data['paths']:
-  show_poly(root, path=path, xoff=30, yoff=50, idx=None)
+for path in data['mark']['paths']:
+  show_poly(root, path=path, width=0.2, xoff=30, yoff=50, idx=None)
+  idx += len(path)
+for path in data['cut']['paths']:
+  show_poly(root, path=path, width=0.4, xoff=30, yoff=50, idx=None)
   idx += len(path)
 
 # show_poly(root, path = [(0,0),(20,0),(10,20),(0,0)], xoff=30, yoff=50)
