@@ -67,6 +67,7 @@ else:   # Linux
 # 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
 # 2017-12-25 jw, v1.7  Added getNodeStyle(), cssDictAdd(), expanded matchStrokeColor() to use
 #                      inline style defs. Added a warning message for not-implemented CSS styles.
+#                v1.7a Added getNodeStyleOne() made getNodeStyle() recurse through parents.
 
 import inkex
 import simplepath
@@ -88,7 +89,7 @@ class InkSvg():
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
-    def getNodeStyle(self, node):
+    def getNodeStyleOne(self, node):
         """
         Finds style declarations by .class, #id or by tag.class syntax,
         and of course by a direct style='...' attribute.
@@ -97,8 +98,8 @@ class InkSvg():
         selectors = []
         classes = node.get('class', '')         # classes == None can happen here.
         if classes is not None and classes != '':
-          selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
-          selectors += [node.tag+sel for sel in selectors]
+            selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
+            selectors += [node.tag+sel for sel in selectors]
         node_id = node.get('id', '')
         if node_id is not None and node_id != '':
             selectors += [ "#"+node_id ]
@@ -107,8 +108,23 @@ class InkSvg():
                 sheet += '; '+self.css_dict[sel]
         style = node.get('style', '')
         if style is not None and style != '':
-          sheet += '; '+style
+            sheet += '; '+style
         return simplestyle.parseStyle(sheet)
+
+    def getNodeStyle(self, node):
+        """
+        Recurse into parent group nodes, like simpletransform.ComposeParents
+        Calling getNodeStyleOne() for each.
+        """
+        combined_style = {}
+        parent = node.getparent()
+        if parent.tag == inkex.addNS('g','svg') or parent.tag == 'g':
+            combined_style = self.getNodeStyle(parent)
+        style = self.getNodeStyleOne(node)
+        for s in style:
+            combined_style[s] = style[s]        # overwrite or add
+        return combined_style
+
 
     def styleDasharray(self, path_d, node):
         """
