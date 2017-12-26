@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
 <!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
-  <name>Thunderlaser RUIDA (devel)</name>
-  <id>com.github.jnweiger.inskscape-thunderlaser.devel</id>
+  <name>Thunderlaser RUIDA</name>
+  <id>com.github.jnweiger.inskscape-thunderlaser</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
@@ -134,7 +134,7 @@ Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/r
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.6b</param>
+      <param name="about_version" type="description">Version 1.7a</param>
     </page>
   </param>
 

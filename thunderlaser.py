@@ -20,6 +20,8 @@
 #        multi layer support added. Can now mark and cut in one job.
 # 1.6b - bugfix release: [ ] bbox, [ ] move only, did always cut.
 #        Updated InkSvg() class preserves native order of SVG elements.
+# 1.7  - Updated InkSvg() class to use inline style defs by class name, tag or id.
+# 1.7a - Survive SVG with comments.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -63,9 +65,8 @@ else:   # Linux
 # 2017-12-21 jw, v1.5  Changed getPathVertices() to construct a to self.paths list, instead of
 #                      a dictionary. (Preserving native ordering)
 # 2017-12-22 jw, v1.6  fixed "use" to avoid errors with unknown global symbal 'composeTransform'
-# 2017-12-23 jw, v1.7  Added getNodeStyle(), added a warning message for not-implemented CSS styles.
-# 2017-12-25 jw, v1.8  Added cssDictAdd(), extended getNodeStyle() and matchStrokeColor() to
-#                      use inline style defs.
+# 2017-12-25 jw, v1.7  Added getNodeStyle(), cssDictAdd(), expanded matchStrokeColor() to use
+#                      inline style defs. Added a warning message for not-implemented CSS styles.
 
 import inkex
 import simplepath
@@ -83,7 +84,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.8"
+    __version__ = "1.7a"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -93,16 +94,20 @@ class InkSvg():
         and of course by a direct style='...' attribute.
         """
         sheet = ''
-        classes = node.get('class', '')
-        selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
-        selectors += [node.tag+sel for sel in selectors]
+        selectors = []
+        classes = node.get('class', '')         # classes == None can happen here.
+        if classes is not None and classes != '':
+          selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
+          selectors += [node.tag+sel for sel in selectors]
         node_id = node.get('id', '')
-        if node_id != '':
+        if node_id is not None and node_id != '':
             selectors += [ "#"+node_id ]
         for sel in selectors:
             if sel in self.css_dict:
                 sheet += '; '+self.css_dict[sel]
-        sheet += '; '+node.get('style', '')
+        style = node.get('style', '')
+        if style is not None and style != '':
+          sheet += '; '+style
         return simplestyle.parseStyle(sheet)
 
     def styleDasharray(self, path_d, node):
@@ -1574,7 +1579,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.6b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.7a'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """

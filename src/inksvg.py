@@ -45,7 +45,7 @@ import re
 class InkSvg():
     """
     """
-    __version__ = "1.7"
+    __version__ = "1.7a"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -55,16 +55,20 @@ class InkSvg():
         and of course by a direct style='...' attribute.
         """
         sheet = ''
-        classes = node.get('class', '')
-        selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
-        selectors += [node.tag+sel for sel in selectors]
+        selectors = []
+        classes = node.get('class', '')         # classes == None can happen here.
+        if classes is not None and classes != '':
+          selectors = ["."+cls for cls in re.split('[\s,]+', classes)]
+          selectors += [node.tag+sel for sel in selectors]
         node_id = node.get('id', '')
-        if node_id != '':
+        if node_id is not None and node_id != '':
             selectors += [ "#"+node_id ]
         for sel in selectors:
             if sel in self.css_dict:
                 sheet += '; '+self.css_dict[sel]
-        sheet += '; '+node.get('style', '')
+        style = node.get('style', '')
+        if style is not None and style != '':
+          sheet += '; '+style
         return simplestyle.parseStyle(sheet)
 
     def styleDasharray(self, path_d, node):
