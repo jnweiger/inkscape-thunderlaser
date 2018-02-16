@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+<!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
+  <name>{{ machines[machine].name }} {% if release == 'devel' %}DEV {% endif %}({{ language | upper }})</name>
+  <id>com.github.jnweiger.inskscape-bodorlaser.de</id>
+  <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <dependency type="executable" location="extensions">thunderlaser.py</dependency>
+  <param name="tab" type="notebook">
+    <page name='thunderlaser' gui-text='Thunderlaser'>
+      <param name="header_cut" type="description" appearance="header">Schneiden</param>
+
+      <param name="cut_group" type="notebook">
+        <page name='cut_other' gui-text='Holz'>
+          <param name="cut_other_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
+          <param name="cut_other" type="enum" gui-text="Holz:">
+            <item value="15,60,60">15,60,60: Sperrholz 4 mm</item>
+            <item value="20,60,60">20,60,60: Sperrholz 6 mm</item>
+          </param>
+        </page>
+        <page name='cut_manual' gui-text='Gechwindigkeit/Leistung'>
+          <param name="cut_manual_speed" type="int" min="2" max="200" appearance="full" gui-text="Geschwindigkeit [mm/s]:  ">30</param>
+          <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinLeistung %:    ">50</param>
+          <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxLeistung %:    ">70</param>
+        </page>
+      </param>
+
+      <param name="cut_color" type="enum" gui-text="Wähle Linienfarbe">
+        <item value="any">Unwichtig</item>
+        <item value="none">Keine. Nichts schneiden</item>
+        <item value="red">Rot</item>
+        <item value="green">Grün</item>
+        <item value="blue">Blau</item>
+        <item value="black">Schwarz</item>
+        <item value="white">Weiss</item>
+        <item value="cyan">Cyan</item>
+        <item value="magenta">Magenta</item>
+        <item value="yellow">Gelb</item>
+      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="header_mark" type="description" appearance="header">Markieren</param>
+
+      <param name="mark_group" type="notebook">
+        <page name='mark_material' gui-text='Material'>
+          <param name="mark_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
+          <param name="mark_material" type="enum" gui-text="Material:">
+            <item value="1000,8,25">1000,8,25: Birke Sperrholz</item>
+            <item value="1000,7,18">1000,7,18: Karton (Finnpappe)</item>
+          </param>
+        </page>
+        <page name='mark_manual' gui-text='Geschwindigkeit/Leistung'>
+          <param name="mark_manual_speed" type="int" min="2" max="1000" appearance="full" gui-text="Geschwindigkeit [mm/s]:  ">30</param>
+          <param name="mark_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinLeistung %:    ">50</param>
+          <param name="mark_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxLeistung %:    ">70</param>
+          <!-- appearance="full" → komischer slider -->
+        </page>
+      </param>
+
+      <param name="mark_color" type="enum" gui-text="Wähle Linienfarbe">
+        <item value="none">Keine. Nichts markieren</item>
+        <item value="any">Unwichtig</item>
+        <item value="red">Rot</item>
+        <item value="green">Grün</item>
+        <item value="blue">Blau</item>
+        <item value="black">Schwarz</item>
+        <item value="white">Weiss</item>
+        <item value="cyan">Cyan</item>
+        <item value="magenta">Magenta</item>
+        <item value="yellow">Gelb</item>
+      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="reference" type="description">Siehe auch: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
+    </page>
+
+    <page name='advanced' gui-text='Erweitert'>
+      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="Glätten">0.2</param>
+      <param name="smoothness_help" type="description">
+Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
+      </param>
+      <param name="spacer" type="description"> </param>
+
+<!--
+      <param name="freq1" type="float" min="0" max="1000" gui-text="Frequenz [kHz]">20.0</param>
+      <param name="freq1_help" type="description">Frequenz Laser 1. Unbenutzt?</param>
+      <param name="spacer" type="description"> </param>
+-->
+
+      <!-- hidden, weil endschalter -->
+      <param gui-hidden="true" name="maxwidth"  type="int" min="100" max="1220" gui-text="Breite der Laserfläche [mm]">1220</param>
+      <param gui-hidden="true" name="maxheight" type="int" min="100" max="900" gui-text="Höhe der Laserfläche [mm]">900</param>
+      <param gui-hidden="true" name="spacer" type="description"> </param><!-- U+A0 brauchts weil inkscape dreck (nbsp) -->
+
+      <param name="bbox_only" type="boolean" gui-text="Box. Nur Umrandungslinie">false</param>
+      <param name="bbox_only_help" type="description">
+Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.
+      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="move_only" type="boolean" gui-text="Nur abfahren. Laser ist aus">false</param>
+      <param name="move_only_help" type="description">
+Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.
+      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="device"    type="string" gui-text="Ausgabe-Gerät: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <param name="device_help" type="description">
+USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.
+      </param>
+      <param name="spacer" type="description"> </param>
+
+      <param name="dummy" type="boolean" gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
+      <param name="dummy_help" type="description">
+Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!
+      </param>
+    </page>
+
+    <page name='about' gui-text='Über '>
+      <param name="about_who" type="description" xml:space="preserve">Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
+
+(C) 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.
+
+Danke an Stefan Schuermanns für das Offenlegen der Verschlüsselung https://stefan.schuermans.info/rdcam/ (und für die Hinweise zu wine!)
+
+Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida des Dateiformats.
+</param>
+
+      <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
+
+      <param name="about_version" type="description">Version 1.7a</param>
+    </page>
+  </param>
+
+  <effect needs-live-preview="false" >
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Lasercut Path"/>
+    </effects-menu>
+  </effect>
+
+  <script>
+    <command reldir="extensions" interpreter="python">thunderlaser-ruida.py</command>
+  </script>
+</inkscape-extension>
+<!-- vim: set filetype=xml ts=2 sw=2 sts=2 expandtab : -->

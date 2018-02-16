@@ -1,0 +1,9 @@
+machines:
+  bodor:
+    name: Bodor Laser
+  thunderlaser:
+    name: Thunderlaser
+
+languages:
+  de:
+  en:
