@@ -22,6 +22,7 @@
 #        Updated InkSvg() class preserves native order of SVG elements.
 # 1.7  - Updated InkSvg() class to use inline style defs by class name, tag or id.
 # 1.7a - Survive SVG with comments.
+# 1.8  - support bodor_de.inx
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -57,7 +58,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.7a'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.8'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """
@@ -388,7 +389,7 @@ Option parser example:
                         pass
                     if fd is not None:
                         rd.write(fd)
-                        print(device+" written.", file=sys.stderr)
+                        # print(device+" written.", file=sys.stderr)
                         device_used = device
                         break
                 if device_used is None:

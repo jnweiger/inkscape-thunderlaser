@@ -36,6 +36,7 @@ cp *-pak files/
 cd files
 build_deb_package $name    install
 build_deb_package $name-de install_de
+build_deb_package inkscape-bodor-de install_bodor_de
 
 for deb in ../$tmp/*.deb; do
   dpkg-deb --info     $deb

@@ -17,13 +17,14 @@ UDEV=$(DESTDIR)/lib/udev
 
 all: clean build check
 
-build: $(EXTNAME).py $(EXTNAME).inx $(EXTNAME)_de.inx
+build: $(EXTNAME).py $(EXTNAME).inx $(EXTNAME)_de.inx bodor_de.inx
 
 dist:   build check nodevel
 	cd distribute; sh ./distribute.sh
 
 check:
 	test/test.sh
+
 
 $(EXTNAME).inx:
 	sed -e 's/>thunderlaser\-ruida\.py</>$(EXTNAME).py</g' < src/thunderlaser-ruida.inx > $@
@@ -39,9 +40,16 @@ $(EXTNAME)_de.inx:
 	# add a development hint, to distinguish from any simultaneously installed released version.
 	sed -e 's@</name>@ (devel)</name>@' -e 's@</id>@\.devel</id>@' -i $@
 
+bodor_de.inx:
+	sed -e 's/>thunderlaser\-ruida\.py</>$(EXTNAME).py</g' < src/bodor_de.inx > $@
+	# remove the ruida.py and inksvg.py dependency as they are inlined.
+	sed -e '/\(ruida\|inksvg\)\.py<.dependency/d' -i $@
+	# add a development hint, to distinguish from any simultaneously installed released version.
+	sed -e 's@</name>@ (devel)</name>@' -e 's@</id>@\.devel</id>@' -i $@
+
 nodevel: $(EXTNAME).inx $(EXTNAME)_de.inx
 	# remove the development hints
-	sed -i -e 's@\s*(*devel)*</name>@</name>@i' -e 's@\.devel</id>@</id>@i' $(EXTNAME).inx $(EXTNAME)_de.inx
+	sed -i -e 's@\s*(*devel)*</name>@</name>@i' -e 's@\.devel</id>@</id>@i' $(EXTNAME).inx $(EXTNAME)_de.inx bodor_de.inx
 
 $(EXTNAME).py:
 	sed >  $@ -e '/INLINE_BLOCK_START/,$$d' < src/thunderlaser-ruida.py
@@ -55,6 +63,9 @@ install: install_common
 
 install_de: install_common
 	install -m 644 -t $(DEST) $(EXTNAME)_de.inx
+
+install_bodor_de: install_common
+	install -m 644 -t $(DEST) bodor_de.inx
 
 install_common: nodevel
 	mkdir -p $(DEST)
@@ -78,7 +89,7 @@ tar_dist: nodevel
 	rm -rf dist
 
 clean:
-	rm -f $(EXTNAME).py $(EXTNAME).inx $(EXTNAME)_de.inx
+	rm -f $(EXTNAME).py *.inx
 	rm -f *.orig */*.orig
 	rm -rf distribute/$(DISTNAME)
 	rm -rf distribute/deb/files
