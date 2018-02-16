@@ -1,27 +1,36 @@
+{#
+ # STYLE GUIDE:
+ # quotes: XML: double ("), jinja2: single (')
+ #}
+{%- macro i18n(id) -%}
+  {{ languages[language].strings[id] }}
+{%- endmacro -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-<!-- Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters -->
+{# Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters #}
   <name>{{ machines[machine].name }} {% if release == 'devel' %}DEV {% endif %}({{ language | upper }})</name>
-  <id>com.github.jnweiger.inskscape-bodorlaser.de</id>
+  <id>com.github.jnweiger.inskscape-{{ machine }}.{{ language }}{% if release == 'devel' %}.dev{% endif %}</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser.py</dependency>
   <param name="tab" type="notebook">
-    <page name='thunderlaser' gui-text='Thunderlaser'>
-      <param name="header_cut" type="description" appearance="header">Schneiden</param>
-
+    <page name="main" gui-text="{{ i18n('main') | capitalize }}">
+      <param name="header_cut" type="description" appearance="header">{{ i18n('cut') | capitalize }}</param>
       <param name="cut_group" type="notebook">
-        <page name='cut_other' gui-text='Holz'>
-          <param name="cut_other_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
-          <param name="cut_other" type="enum" gui-text="Holz:">
-            <item value="15,60,60">15,60,60: Sperrholz 4 mm</item>
-            <item value="20,60,60">20,60,60: Sperrholz 6 mm</item>
+        {%- for group in machines[machine].material_groups %}
+        <page name="cut_{{ group.name.en | lower }}" gui-text="{{ group.name[language] }}">
+          <param name="cut_{{ group.name.en | lower }}_help" type="description">{{ i18n('speed') | capitalize }},{{ i18n('minpower') }},{{ i18n('maxpower') }}: {{ i18n('material') | capitalize }}</param>
+          <param name="cut_{{ group.name.en | lower }}" type="enum" gui-text="{{ group.name[language] }}:">
+            {%- for material in group.materials %}
+            <item value="{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}">{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}: {{ material.name[language] }}</item>
+            {%- endfor %}
           </param>
         </page>
-        <page name='cut_manual' gui-text='Gechwindigkeit/Leistung'>
-          <param name="cut_manual_speed" type="int" min="2" max="200" appearance="full" gui-text="Geschwindigkeit [mm/s]:  ">30</param>
-          <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinLeistung %:    ">50</param>
-          <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxLeistung %:    ">70</param>
+        {%- endfor %}
+        <page name="cut_manual" gui-text="{{ i18n('speed') | capitalize }}/{{ i18n('power') | capitalize }}">
+          <param name="cut_manual_speed" type="int" min="2" max="{{ machines[machine].properties.maxspeed }}" appearance="full" gui-text="{{ i18n('speed') }} [mm/s]:  ">{{ machines[machine].properties.speed }}</param>
+          <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="{{ i18n('minpower') }} %:    ">{{ machines[machine].properties.minpower }}</param>
+          <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="{{ i18n('maxpower') }} %:    ">{{ machines[machine].properties.maxpower }}</param>
         </page>
       </param>
 
@@ -140,7 +149,7 @@ Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida 
   </effect>
 
   <script>
-    <command reldir="extensions" interpreter="python">thunderlaser-ruida.py</command>
+    <command reldir="extensions" interpreter="python">thunderlaser.py</command>
   </script>
 </inkscape-extension>
 <!-- vim: set filetype=xml ts=2 sw=2 sts=2 expandtab : -->

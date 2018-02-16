@@ -1,9 +1,53 @@
 machines:
   bodor:
     name: Bodor Laser
+    properties:
+      maxspeed: 300
+      speed: 30
+      minpower: 50
+      maxpower: 70
+    material_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Sperrholz 4 mm
+              en: Plywood 4 mm
+            speed: 15
+            minpower: 60
+            maxpower: 60
+          - name:
+              de: Sperrholz 6 mm
+              en: Plywood 6 mm
+            speed: 20
+            minpower: 60
+            maxpower: 60
+
   thunderlaser:
     name: Thunderlaser
+    properties:
+      maxspeed: 200
+      speed: 30
+      minpower: 50
+      maxpower: 70
 
 languages:
   de:
+    strings:
+      main: allgemein
+      cut: schneiden
+      speed: Geschwindigkeit
+      power: Leistung
+      minpower: MinLeistung
+      maxpower: MaxLeistung
+      material: Material
   en:
+    strings:
+      main: main
+      cut: cut
+      speed: speed
+      power: power
+      minpower: MinPower
+      maxpower: MaxPower
+      material: material
