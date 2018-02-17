@@ -13,7 +13,7 @@ machines:
         width: 1220
         height: 900
         show: false
-    material_groups:
+    cut_groups:
       - name:
           de: Holz
           en: Wood
@@ -30,6 +30,17 @@ machines:
             speed: 20
             minpower: 60
             maxpower: 60
+    mark_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Birke Sperrholz
+              en: Birch Plywood
+            speed: 1000
+            minpower: 8
+            maxpower: 25
 
   thunderlaser:
     name: Thunderlaser
@@ -42,7 +53,7 @@ machines:
         width: 900
         height: 600
         show: true
-    material_groups:
+    cut_groups:
       - name:
           de: Holz
           en: Wood
@@ -109,6 +120,27 @@ machines:
             speed: 100
             minpower: 50
             maxpower: 70
+    mark_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Birke Sperrholz
+              en: Birch Plywood
+            speed: 1000
+            minpower: 8
+            maxpower: 25
+      - name:
+          de: Andere
+          en: Other
+        materials:
+          - name:
+              de: Karton (Finnpappe)
+              en: Cardboard (Finnpappe)
+            speed: 1000
+            minpower: 7
+            maxpower: 18
 
 languages:
   de:
