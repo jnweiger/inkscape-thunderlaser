@@ -31,6 +31,73 @@ machines:
       speed: 30
       minpower: 50
       maxpower: 70
+    material_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Birke Sperrholz 3 mm
+              en: Birch Plywood 3 mm
+            speed: 35
+            minpower: 50
+            maxpower: 65
+          - name:
+              de: Birke Sperrholz 4 mm
+              en: Birch Plywood 4 mm
+            speed: 25
+            minpower: 50
+            maxpower: 65
+          - name:
+              de: Birke Sperrholz 5 mm
+              en: Birch Plywood 5 mm
+            speed: 20
+            minpower: 60
+            maxpower: 70
+      - name:
+          de: Kunststoff
+          en: Plastics
+        materials:
+          - name:
+              de: Acryl (PMMA) 3 mm
+              en: Acrylic (PMMA) 3 mm
+            speed: 25
+            minpower: 55
+            maxpower: 70
+          - name:
+              de: Acryl (PMMA) 4 mm
+              en: Acrylic (PMMA) 4 mm
+            speed: 20
+            minpower: 55
+            maxpower: 70
+          - name:
+              de: Acryl (PMMA) 5 mm
+              en: Acrylic (PMMA) 5 mm
+            speed: 15
+            minpower: 55
+            maxpower: 70
+      - name:
+          de: Andere
+          en: Other
+        materials:
+          - name:
+              de: Karton (FinnP) 1 mm
+              en: Cardboard (FinnP) 1 mm
+            speed: 300
+            minpower: 26
+            maxpower: 65
+          - name:
+              de: Karton (FinnP) 3 mm
+              en: Cardboard (FinnP) 3 mm
+            speed: 80
+            minpower: 50
+            maxpower: 70
+          - name:
+              de: PU Schaum 10 mm
+              en: PU foam 10 mm
+            speed: 100
+            minpower: 50
+            maxpower: 70
 
 languages:
   de:
