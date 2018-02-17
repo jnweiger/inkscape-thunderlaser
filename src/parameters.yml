@@ -1,3 +1,6 @@
+interface:
+  slider: false
+
 machines:
   bodor:
     name: Bodor Laser
@@ -6,6 +9,10 @@ machines:
       speed: 30
       minpower: 50
       maxpower: 70
+      size:
+        width: 1220
+        height: 900
+        show: false
     material_groups:
       - name:
           de: Holz
@@ -31,6 +38,10 @@ machines:
       speed: 30
       minpower: 50
       maxpower: 70
+      size:
+        width: 900
+        height: 600
+        show: true
     material_groups:
       - name:
           de: Holz
@@ -109,6 +120,8 @@ languages:
       minpower: MinLeistung
       maxpower: MaxLeistung
       material: Material
+      workspace_width: Breite der Laserfläche
+      workspace_height: Höhe der Laserfläche
   en:
     strings:
       main: main
@@ -118,3 +131,5 @@ languages:
       minpower: MinPower
       maxpower: MaxPower
       material: material
+      workspace_width: Width of the laser area
+      workspace_height: Height of the laser area

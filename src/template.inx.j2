@@ -28,9 +28,9 @@
         </page>
         {%- endfor %}
         <page name="cut_manual" gui-text="{{ i18n('speed') | capitalize }}/{{ i18n('power') | capitalize }}">
-          <param name="cut_manual_speed" type="int" min="2" max="{{ machines[machine].properties.maxspeed }}" appearance="full" gui-text="{{ i18n('speed') }} [mm/s]:  ">{{ machines[machine].properties.speed }}</param>
-          <param name="cut_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="{{ i18n('minpower') }} %:    ">{{ machines[machine].properties.minpower }}</param>
-          <param name="cut_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="{{ i18n('maxpower') }} %:    ">{{ machines[machine].properties.maxpower }}</param>
+          <param name="cut_manual_speed" type="int" min="2" max="{{ machines[machine].properties.maxspeed }}" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('speed') }} [mm/s]:  ">{{ machines[machine].properties.speed }}</param>
+          <param name="cut_manual_minpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('minpower') }} %:    ">{{ machines[machine].properties.minpower }}</param>
+          <param name="cut_manual_maxpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('maxpower') }} %:    ">{{ machines[machine].properties.maxpower }}</param>
         </page>
       </param>
 
@@ -59,10 +59,9 @@
           </param>
         </page>
         <page name='mark_manual' gui-text='Geschwindigkeit/Leistung'>
-          <param name="mark_manual_speed" type="int" min="2" max="1000" appearance="full" gui-text="Geschwindigkeit [mm/s]:  ">30</param>
-          <param name="mark_manual_minpow" type="int" min="7" max="100" appearance="full" gui-text="MinLeistung %:    ">50</param>
-          <param name="mark_manual_maxpow" type="int" min="7" max="100" appearance="full" gui-text="MaxLeistung %:    ">70</param>
-          <!-- appearance="full" → komischer slider -->
+          <param name="mark_manual_speed" type="int" min="2" max="1000" {% if interface.slider %}appearance="full"{% endif %} gui-text="Geschwindigkeit [mm/s]:">30</param>
+          <param name="mark_manual_minpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="MinLeistung %:">50</param>
+          <param name="mark_manual_maxpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="MaxLeistung %:">70</param>
         </page>
       </param>
 
@@ -96,10 +95,9 @@ Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.00
       <param name="spacer" type="description"> </param>
 -->
 
-      <!-- hidden, weil endschalter -->
-      <param gui-hidden="true" name="maxwidth"  type="int" min="100" max="1220" gui-text="Breite der Laserfläche [mm]">1220</param>
-      <param gui-hidden="true" name="maxheight" type="int" min="100" max="900" gui-text="Höhe der Laserfläche [mm]">900</param>
-      <param gui-hidden="true" name="spacer" type="description"> </param><!-- U+A0 brauchts weil inkscape dreck (nbsp) -->
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxwidth" type="int" min="100" max="{{ machines[machine].properties.size.width }}" gui-text="{{ i18n('workspace_width') }} [mm]">{{ machines[machine].properties.size.width }}</param>
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxheight" type="int" min="100" max="{{ machines[machine].properties.size.height }}" gui-text="{{ i18n('workspace_height') }} [mm]">{{ machines[machine].properties.size.height }}</param>
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="spacer" type="description"> </param>
 
       <param name="bbox_only" type="boolean" gui-text="Box. Nur Umrandungslinie">false</param>
       <param name="bbox_only_help" type="description">
