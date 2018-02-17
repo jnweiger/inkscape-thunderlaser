@@ -20,7 +20,7 @@
         {%- for group in machines[machine].material_groups %}
         <page name="cut_{{ group.name.en | lower }}" gui-text="{{ group.name[language] }}">
           <param name="cut_{{ group.name.en | lower }}_help" type="description">{{ i18n('speed') | capitalize }},{{ i18n('minpower') }},{{ i18n('maxpower') }}: {{ i18n('material') | capitalize }}</param>
-          <param name="cut_{{ group.name.en | lower }}" type="enum" gui-text="{{ group.name[language] }}:">
+          <param name="cut_{{ group.name.en | lower }}" type="enum" gui-text="{{ i18n('material') }}:">
             {%- for material in group.materials %}
             <item value="{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}">{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}: {{ material.name[language] }}</item>
             {%- endfor %}
