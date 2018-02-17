@@ -115,6 +115,7 @@ languages:
     strings:
       main: allgemein
       cut: schneiden
+      mark: markieren
       speed: Geschwindigkeit
       power: Leistung
       minpower: MinLeistung
@@ -122,10 +123,24 @@ languages:
       material: Material
       workspace_width: Breite der Laserfläche
       workspace_height: Höhe der Laserfläche
+      linecolor: Wähle Linienfarbe
+    colors:
+      any: unwichtig
+      cut_none: nichts schneiden
+      mark_none: nichts markieren
+      red: rot
+      green: grün
+      blue: blau
+      black: schwarz
+      white: weiß
+      cyan: cyan
+      magenta: magenta
+      yellow: gelb
   en:
     strings:
       main: main
       cut: cut
+      mark: mark
       speed: speed
       power: power
       minpower: MinPower
@@ -133,3 +148,28 @@ languages:
       material: material
       workspace_width: Width of the laser area
       workspace_height: Height of the laser area
+      linecolor: By line color
+    colors:
+      any: any
+      cut_none: cut nothing
+      mark_none: mark nothing
+      red: red
+      green: green
+      blue: blue
+      black: black
+      white: white
+      cyan: cyan
+      magenta: magenta
+      yellow: yellow
+
+colors:
+  - any
+  - none
+  - red
+  - green
+  - blue
+  - black
+  - white
+  - cyan
+  - magenta
+  - yellow

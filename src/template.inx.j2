@@ -4,6 +4,12 @@
  #}
 {%- macro i18n(id) -%}
   {{ languages[language].strings[id] }}
+  {%- endmacro -%}
+{%- macro i18n_color(id) -%}
+  {{ languages[language].colors[id] | capitalize }}
+{%- endmacro -%}
+{%- macro spacer() -%}
+  <param name="spacer" type="description"> </param>
 {%- endmacro -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
@@ -34,22 +40,19 @@
         </page>
       </param>
 
-      <param name="cut_color" type="enum" gui-text="Wähle Linienfarbe">
-        <item value="any">Unwichtig</item>
-        <item value="none">Keine. Nichts schneiden</item>
-        <item value="red">Rot</item>
-        <item value="green">Grün</item>
-        <item value="blue">Blau</item>
-        <item value="black">Schwarz</item>
-        <item value="white">Weiss</item>
-        <item value="cyan">Cyan</item>
-        <item value="magenta">Magenta</item>
-        <item value="yellow">Gelb</item>
+      <param name="cut_color" type="enum" gui-text="{{ i18n('linecolor') }}">
+        {% for color in colors %}
+        {%- if color == 'none' -%}
+          {%- set color_string = 'cut_' + color -%}
+        {%- else -%}
+          {%- set color_string = color -%}
+        {%- endif -%}
+        <item value="{{ color }}">{{ i18n_color(color_string) }}</item>
+        {% endfor %}
       </param>
-      <param name="spacer" type="description"> </param>
+      {{ spacer() }}
 
       <param name="header_mark" type="description" appearance="header">Markieren</param>
-
       <param name="mark_group" type="notebook">
         <page name='mark_material' gui-text='Material'>
           <param name="mark_settings_help" type="description">Geschwindigkeit,MinLeistung,MaxLeistung: Material</param>
@@ -65,19 +68,17 @@
         </page>
       </param>
 
-      <param name="mark_color" type="enum" gui-text="Wähle Linienfarbe">
-        <item value="none">Keine. Nichts markieren</item>
-        <item value="any">Unwichtig</item>
-        <item value="red">Rot</item>
-        <item value="green">Grün</item>
-        <item value="blue">Blau</item>
-        <item value="black">Schwarz</item>
-        <item value="white">Weiss</item>
-        <item value="cyan">Cyan</item>
-        <item value="magenta">Magenta</item>
-        <item value="yellow">Gelb</item>
+      <param name="mark_color" type="enum" gui-text="{{ i18n('linecolor') }}">
+        {% for color in colors %}
+        {%- if color == 'none' -%}
+          {%- set color_string = 'mark_' + color -%}
+        {%- else -%}
+          {%- set color_string = color -%}
+        {%- endif -%}
+        <item value="{{ color }}">{{ i18n_color(color_string) }}</item>
+        {% endfor %}
       </param>
-      <param name="spacer" type="description"> </param>
+      {{ spacer() }}
 
       <param name="reference" type="description">Siehe auch: http://wiki.fablab-nuernberg.de/w/Nova_35</param>
     </page>
