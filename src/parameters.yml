@@ -1,3 +1,5 @@
+version: 1.7a
+
 interface:
   slider: false
 
@@ -156,6 +158,19 @@ languages:
       workspace_width: Breite der Laserfläche
       workspace_height: Höhe der Laserfläche
       linecolor: Wähle Linienfarbe
+      advanced: erweitert
+      smoothness: glätten
+      smoothness_help: "Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5"
+      frequency: Frequenz
+      bbox_only: Nur Umrandungslinie
+      bbox_only_help: Für einen schnellen Bereichstest vorher zusammen mit „Nur abfahren“, oder anschliessend für einen sauberen Umrandungsschnitt.
+      move_only: Nur abfahren, Laser ist aus
+      move_only_help: Vorschaumodus. Zusammen mit „Box“ für einen schnellen Bereichstest.
+      device: Ausgabegerät
+      device_help: USB-Schnittstelle, oder eine Datei mit “.rd”-Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.
+      dummy_device: Dummy-Gerät
+      dummy_device_help: Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!
+      about: Über
     colors:
       any: unwichtig
       cut_none: nichts schneiden
@@ -168,6 +183,14 @@ languages:
       cyan: cyan
       magenta: magenta
       yellow: gelb
+    description: |
+      Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
+
+      © 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.
+
+      Danke an Stefan Schuermanns für das Offenlegen der Verschlüsselung https://stefan.schuermans.info/rdcam/ (und für die Hinweise zu wine!)
+
+      Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida des Dateiformats.
   en:
     strings:
       main: main
@@ -181,6 +204,19 @@ languages:
       workspace_width: Width of the laser area
       workspace_height: Height of the laser area
       linecolor: By line color
+      advanced: advanced
+      smoothness: smoothness
+      smoothness_help: "Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5"
+      frequency: frequency
+      bbox_only: Bounding box only
+      bbox_only_help: Used for a quick area check togehter with “Move only”, or for a clean frame cut afterwards.
+      move_only: Move only, laser off
+      move_only_help: Preview. Use together with “Bounding Box” mode for a quick area check.
+      device: Output device
+      device_help: USB connection or a file name with a “.rd” extension. The number of the USB or COM port may need adjustment.
+      dummy_device: Dummy device
+      dummy_device_help: Used for debugging and developent only!
+      about: about
     colors:
       any: any
       cut_none: cut nothing
@@ -193,6 +229,14 @@ languages:
       cyan: cyan
       magenta: magenta
       yellow: yellow
+    description: |
+      inkscape-thunderlaser extension from https://github.com/jnweiger/inkscape-thunderlaser
+
+      © 2017 by Jürgen Weigert [juewei@fabmail.org] and contributors.
+
+      Thanks to Stefan Schuermanns for the descrambler https://stefan.schuermans.info/rdcam/ (and giving instructions with wine!)
+
+      Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/ruida for the file format.
 
 colors:
   - any

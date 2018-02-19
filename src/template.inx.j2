@@ -57,7 +57,8 @@
         {%- for group in machines[machine].mark_groups %}
         <page name="mark_{{ group.name.en | lower }}" gui-text="{{ group.name[language] }}">
           <param name="mark_{{ group.name.en | lower }}_help" type="description">{{ i18n('speed') | capitalize }},{{ i18n('minpower') }},{{ i18n('maxpower') }}: {{ i18n('material') | capitalize }}</param>
-          <param name="mark_{{ group.name.en | lower }}" type="enum" gui-text="{{ i18n('material') }}:">
+          <!-- FIXME: this should be mark_{{ group.name.en }} (limitation of python script) -->
+          <param name="mark_material" type="enum" gui-text="{{ i18n('material') }}:">
             {%- for material in group.materials %}
             <item value="{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}">{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}: {{ material.name[language] }}</item>
             {%- endfor %}
@@ -86,60 +87,43 @@
       {# <param name="reference" type="description">Siehe auch: http://wiki.fablab-nuernberg.de/w/Nova_35</param> #}
     </page>
 
-    <page name='advanced' gui-text='Erweitert'>
-      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="Glätten">0.2</param>
-      <param name="smoothness_help" type="description">
-Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5
-      </param>
-      <param name="spacer" type="description"> </param>
+    <page name="advanced" gui-text="{{ i18n('advanced') | capitalize }}">
+      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="{{ i18n('advanced') | capitalize }}">0.2</param>
+      <param name="smoothness_help" type="description">{{ i18n('smoothness_help') }}</param>
+      {{ spacer() }}
 
 <!--
-      <param name="freq1" type="float" min="0" max="1000" gui-text="Frequenz [kHz]">20.0</param>
-      <param name="freq1_help" type="description">Frequenz Laser 1. Unbenutzt?</param>
-      <param name="spacer" type="description"> </param>
+      <param name="freq1" type="float" min="0" max="1000" gui-text="{{ i18n('frequency') | capitalize }} [kHz]">20.0</param>
+      <param name="freq1_help" type="description">{{ i18n('frequency') | capitalize }} Laser 1.</param>
+      {{ spacer() }}
 -->
 
       <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxwidth" type="int" min="100" max="{{ machines[machine].properties.size.width }}" gui-text="{{ i18n('workspace_width') }} [mm]">{{ machines[machine].properties.size.width }}</param>
       <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxheight" type="int" min="100" max="{{ machines[machine].properties.size.height }}" gui-text="{{ i18n('workspace_height') }} [mm]">{{ machines[machine].properties.size.height }}</param>
       <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="spacer" type="description"> </param>
 
-      <param name="bbox_only" type="boolean" gui-text="Box. Nur Umrandungslinie">false</param>
-      <param name="bbox_only_help" type="description">
-Für einen schnellen Bereichstest vorher zusammen mit "Nur abfahren", oder anschliessend für einen sauberen Umrandungsschnitt.
-      </param>
-      <param name="spacer" type="description"> </param>
+      <param name="bbox_only" type="boolean" gui-text="{{ i18n('bbox_only') }}">false</param>
+      <param name="bbox_only_help" type="description">{{ i18n('bbox_only_help') }}</param>
+      {{ spacer() }}
 
-      <param name="move_only" type="boolean" gui-text="Nur abfahren. Laser ist aus">false</param>
-      <param name="move_only_help" type="description">
-Vorschaumodus. Zusammen mit "Box" für einen schnellen Bereichstest.
-      </param>
-      <param name="spacer" type="description"> </param>
+      <param name="move_only" type="boolean" gui-text="{{ i18n('move_only') }}">false</param>
+      <param name="move_only_help" type="description">{{ i18n('move_only_help') }}</param>
+      {{ spacer() }}
 
-      <param name="device"    type="string" gui-text="Ausgabe-Gerät: ">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
-      <param name="device_help" type="description">
-USB Schnittstelle, oder eine Datei mit ".rd" Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.
-      </param>
-      <param name="spacer" type="description"> </param>
+      <param name="device" type="string" gui-text="{{ i18n('device') }}:">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <param name="device_help" type="description">{{ i18n('device_help') }}</param>
+      {{ spacer() }}
 
-      <param name="dummy" type="boolean" gui-text="Dummy Gerät: /tmp/thunderlaser.json">false</param>
-      <param name="dummy_help" type="description">
-Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!
-      </param>
+      <param name="dummy" type="boolean" gui-text="{{ i18n('dummy_device') }}: /tmp/thunderlaser.json">false</param>
+      <param name="dummy_help" type="description">{{ i18n('dummy_device_help') }}</param>
     </page>
 
-    <page name='about' gui-text='Über '>
-      <param name="about_who" type="description" xml:space="preserve">Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
-
-(C) 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.
-
-Danke an Stefan Schuermanns für das Offenlegen der Verschlüsselung https://stefan.schuermans.info/rdcam/ (und für die Hinweise zu wine!)
-
-Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida des Dateiformats.
-</param>
+    <page name='about' gui-text='{{ i18n('about') | capitalize }}'>
+      <param name="about_who" type="description" xml:space="preserve">{{ languages[language].description }}</param>
 
       <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
 
-      <param name="about_version" type="description">Version 1.7a</param>
+      <param name="about_version" type="description">Version {{ version }}</param>
     </page>
   </param>
 
