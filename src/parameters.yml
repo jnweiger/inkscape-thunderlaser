@@ -7,7 +7,7 @@ machines:
   bodor:
     name: Bodor Laser
     properties:
-      maxspeed: 300
+      maxspeed: 400
       speed: 30
       minpower: 50
       maxpower: 70
@@ -23,26 +23,48 @@ machines:
           - name:
               de: Sperrholz 4 mm
               en: Plywood 4 mm
-            speed: 15
+            speed: 20
             minpower: 60
             maxpower: 60
           - name:
               de: Sperrholz 6 mm
               en: Plywood 6 mm
-            speed: 20
+            speed: 15
             minpower: 60
             maxpower: 60
+          - name:
+              de: Sperrholz 7.72 mm
+              en: Plywood 7.72 mm
+            speed: 10
+            minpower: 70
+            maxpower: 70
+      - name:
+          de: Pappe
+          en: Cardboard
+        materials:
+          - name:
+              de: Karton 2 mm
+              en: Cardboard 2 mm
+            speed: 50
+            minpower: 30
+            maxpower: 30
+          - name:
+              de: Wellpappe 6.4 mm
+              en: Corrugated board 6.4 mm
+            speed: 50
+            minpower: 35
+            maxpower: 35
     mark_groups:
       - name:
           de: Holz
           en: Wood
         materials:
           - name:
-              de: Birke Sperrholz
-              en: Birch Plywood
-            speed: 1000
-            minpower: 8
-            maxpower: 25
+              de: Sperrholz 4 mm (tief)
+              en: Plywood 4 mm (deep)
+            speed: 200
+            minpower: 20
+            maxpower: 20
 
   thunderlaser:
     name: Thunderlaser
