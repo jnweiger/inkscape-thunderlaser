@@ -1,0 +1,141 @@
+{#
+ # STYLE GUIDE:
+ # quotes: XML: double ("), jinja2: single (')
+ #}
+{%- macro i18n(id) -%}
+  {{ languages[language].strings[id] }}
+  {%- endmacro -%}
+{%- macro i18n_color(id) -%}
+  {{ languages[language].colors[id] | capitalize }}
+{%- endmacro -%}
+{%- macro spacer() -%}
+  <param name="spacer" type="description"> </param>
+{%- endmacro -%}
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+{# Syntax see: http://wiki.inkscape.org/wiki/index.php/INX_Parameters #}
+  <name>{{ machines[machine].name }} {% if release == 'devel' %}DEV {% endif %}({{ language | upper }})</name>
+  <id>com.github.jnweiger.inskscape-{{ machine }}.{{ language }}{% if release == 'devel' %}.dev{% endif %}</id>
+  <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <dependency type="executable" location="extensions">thunderlaser.py</dependency>
+  <param name="tab" type="notebook">
+    <page name="main" gui-text="{{ i18n('main') | capitalize }}">
+      <param name="header_cut" type="description" appearance="header">{{ i18n('cut') | capitalize }}</param>
+      <param name="cut_group" type="notebook">
+        {%- for group in machines[machine].cut_groups %}
+        <page name="cut_{{ group.name.en | lower }}" gui-text="{{ group.name[language] }}">
+          <param name="cut_{{ group.name.en | lower }}_help" type="description">{{ i18n('speed') | capitalize }},{{ i18n('minpower') }},{{ i18n('maxpower') }}: {{ i18n('material') | capitalize }}</param>
+          <param name="cut_{{ group.name.en | lower }}" type="enum" gui-text="{{ i18n('material') }}:">
+            {%- for material in group.materials %}
+            <item value="{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}">{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}: {{ material.name[language] }}</item>
+            {%- endfor %}
+          </param>
+        </page>
+        {%- endfor %}
+        <page name="cut_manual" gui-text="{{ i18n('speed') | capitalize }}/{{ i18n('power') | capitalize }}">
+          <param name="cut_manual_speed" type="int" min="2" max="{{ machines[machine].properties.maxspeed }}" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('speed') }} [mm/s]:">{{ machines[machine].properties.speed }}</param>
+          <param name="cut_manual_minpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('minpower') }} %:">{{ machines[machine].properties.minpower }}</param>
+          <param name="cut_manual_maxpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('maxpower') }} %:">{{ machines[machine].properties.maxpower }}</param>
+        </page>
+      </param>
+
+      <param name="cut_color" type="enum" gui-text="{{ i18n('linecolor') }}">
+        {% for color in colors %}
+        {%- if color == 'none' -%}
+          {%- set color_string = 'cut_' + color -%}
+        {%- else -%}
+          {%- set color_string = color -%}
+        {%- endif -%}
+        <item value="{{ color }}">{{ i18n_color(color_string) }}</item>
+        {% endfor %}
+      </param>
+      {{ spacer() }}
+
+      <param name="header_mark" type="description" appearance="header">{{ i18n('mark') | capitalize }}</param>
+      <param name="mark_group" type="notebook">
+        {%- for group in machines[machine].mark_groups %}
+        <page name="mark_{{ group.name.en | lower }}" gui-text="{{ group.name[language] }}">
+          <param name="mark_{{ group.name.en | lower }}_help" type="description">{{ i18n('speed') | capitalize }},{{ i18n('minpower') }},{{ i18n('maxpower') }}: {{ i18n('material') | capitalize }}</param>
+          <!-- FIXME: this should be mark_{{ group.name.en }} (limitation of python script) -->
+          <param name="mark_material" type="enum" gui-text="{{ i18n('material') }}:">
+            {%- for material in group.materials %}
+            <item value="{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}">{{ material.speed }},{{ material.minpower }},{{ material.maxpower }}: {{ material.name[language] }}</item>
+            {%- endfor %}
+          </param>
+        </page>
+        {%- endfor %}
+        <page name="mark_manual" gui-text="{{ i18n('speed') | capitalize }}/{{ i18n('power') | capitalize }}">
+          <param name="mark_manual_speed" type="int" min="2" max="{{ machines[machine].properties.maxspeed }}" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('speed') }} [mm/s]:">{{ machines[machine].properties.speed }}</param>
+          <param name="mark_manual_minpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('minpower') }} %:">{{ machines[machine].properties.minpower }}</param>
+          <param name="mark_manual_maxpow" type="int" min="7" max="100" {% if interface.slider %}appearance="full"{% endif %} gui-text="{{ i18n('maxpower') }} %:">{{ machines[machine].properties.maxpower }}</param>
+        </page>
+      </param>
+
+      <param name="mark_color" type="enum" gui-text="{{ i18n('linecolor') }}">
+        {% for color in colors %}
+        {%- if color == 'none' -%}
+          {%- set color_string = 'mark_' + color -%}
+        {%- else -%}
+          {%- set color_string = color -%}
+        {%- endif -%}
+        <item value="{{ color }}">{{ i18n_color(color_string) }}</item>
+        {% endfor %}
+      </param>
+      {{ spacer() }}
+
+      {# <param name="reference" type="description">Siehe auch: http://wiki.fablab-nuernberg.de/w/Nova_35</param> #}
+    </page>
+
+    <page name="advanced" gui-text="{{ i18n('advanced') | capitalize }}">
+      <param name="smoothness" type="float" min="0.0001" max="5" gui-text="{{ i18n('advanced') | capitalize }}">0.2</param>
+      <param name="smoothness_help" type="description">{{ i18n('smoothness_help') }}</param>
+      {{ spacer() }}
+
+<!--
+      <param name="freq1" type="float" min="0" max="1000" gui-text="{{ i18n('frequency') | capitalize }} [kHz]">20.0</param>
+      <param name="freq1_help" type="description">{{ i18n('frequency') | capitalize }} Laser 1.</param>
+      {{ spacer() }}
+-->
+
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxwidth" type="int" min="100" max="{{ machines[machine].properties.size.width }}" gui-text="{{ i18n('workspace_width') }} [mm]">{{ machines[machine].properties.size.width }}</param>
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="maxheight" type="int" min="100" max="{{ machines[machine].properties.size.height }}" gui-text="{{ i18n('workspace_height') }} [mm]">{{ machines[machine].properties.size.height }}</param>
+      <param {% if not machines[machine].properties.size.show %}gui-hidden="true"{% endif %} name="spacer" type="description"> </param>
+
+      <param name="bbox_only" type="boolean" gui-text="{{ i18n('bbox_only') }}">false</param>
+      <param name="bbox_only_help" type="description">{{ i18n('bbox_only_help') }}</param>
+      {{ spacer() }}
+
+      <param name="move_only" type="boolean" gui-text="{{ i18n('move_only') }}">false</param>
+      <param name="move_only_help" type="description">{{ i18n('move_only_help') }}</param>
+      {{ spacer() }}
+
+      <param name="device" type="string" gui-text="{{ i18n('device') }}:">/dev/ttyUSB0,/tmp/thunderlaser.rd</param>
+      <param name="device_help" type="description">{{ i18n('device_help') }}</param>
+      {{ spacer() }}
+
+      <param name="dummy" type="boolean" gui-text="{{ i18n('dummy_device') }}: /tmp/thunderlaser.json">false</param>
+      <param name="dummy_help" type="description">{{ i18n('dummy_device_help') }}</param>
+    </page>
+
+    <page name='about' gui-text='{{ i18n('about') | capitalize }}'>
+      <param name="about_who" type="description" xml:space="preserve">{{ languages[language].description }}</param>
+
+      <!-- Keep in sync with thunderlaser-ruida.py line 44 __version__ = ... -->
+
+      <param name="about_version" type="description">Version {{ version }}</param>
+    </page>
+  </param>
+
+  <effect needs-live-preview="false" >
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Lasercut Path"/>
+    </effects-menu>
+  </effect>
+
+  <script>
+    <command reldir="extensions" interpreter="python">thunderlaser.py</command>
+  </script>
+</inkscape-extension>
+<!-- vim: set filetype=xml ts=2 sw=2 sts=2 expandtab : -->

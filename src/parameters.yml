@@ -1,0 +1,273 @@
+version: 1.7a
+
+interface:
+  slider: false
+
+machines:
+  bodor:
+    name: Bodor Laser
+    properties:
+      maxspeed: 400
+      speed: 30
+      minpower: 50
+      maxpower: 70
+      size:
+        width: 1220
+        height: 900
+        show: false
+    cut_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Sperrholz 4 mm
+              en: Plywood 4 mm
+            speed: 20
+            minpower: 60
+            maxpower: 60
+          - name:
+              de: Sperrholz 6 mm
+              en: Plywood 6 mm
+            speed: 15
+            minpower: 60
+            maxpower: 60
+          - name:
+              de: Sperrholz 7.72 mm
+              en: Plywood 7.72 mm
+            speed: 10
+            minpower: 70
+            maxpower: 70
+      - name:
+          de: Pappe
+          en: Cardboard
+        materials:
+          - name:
+              de: Karton 2 mm
+              en: Cardboard 2 mm
+            speed: 50
+            minpower: 30
+            maxpower: 30
+          - name:
+              de: Wellpappe 6.4 mm
+              en: Corrugated board 6.4 mm
+            speed: 50
+            minpower: 35
+            maxpower: 35
+    mark_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Sperrholz 4 mm (tief)
+              en: Plywood 4 mm (deep)
+            speed: 200
+            minpower: 20
+            maxpower: 20
+
+  thunderlaser:
+    name: Thunderlaser
+    properties:
+      maxspeed: 200
+      speed: 30
+      minpower: 50
+      maxpower: 70
+      size:
+        width: 900
+        height: 600
+        show: true
+    cut_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Birke Sperrholz 3 mm
+              en: Birch Plywood 3 mm
+            speed: 35
+            minpower: 50
+            maxpower: 65
+          - name:
+              de: Birke Sperrholz 4 mm
+              en: Birch Plywood 4 mm
+            speed: 25
+            minpower: 50
+            maxpower: 65
+          - name:
+              de: Birke Sperrholz 5 mm
+              en: Birch Plywood 5 mm
+            speed: 20
+            minpower: 60
+            maxpower: 70
+      - name:
+          de: Kunststoff
+          en: Plastics
+        materials:
+          - name:
+              de: Acryl (PMMA) 3 mm
+              en: Acrylic (PMMA) 3 mm
+            speed: 25
+            minpower: 55
+            maxpower: 70
+          - name:
+              de: Acryl (PMMA) 4 mm
+              en: Acrylic (PMMA) 4 mm
+            speed: 20
+            minpower: 55
+            maxpower: 70
+          - name:
+              de: Acryl (PMMA) 5 mm
+              en: Acrylic (PMMA) 5 mm
+            speed: 15
+            minpower: 55
+            maxpower: 70
+      - name:
+          de: Andere
+          en: Other
+        materials:
+          - name:
+              de: Karton (FinnP) 1 mm
+              en: Cardboard (FinnP) 1 mm
+            speed: 300
+            minpower: 26
+            maxpower: 65
+          - name:
+              de: Karton (FinnP) 3 mm
+              en: Cardboard (FinnP) 3 mm
+            speed: 80
+            minpower: 50
+            maxpower: 70
+          - name:
+              de: PU Schaum 10 mm
+              en: PU foam 10 mm
+            speed: 100
+            minpower: 50
+            maxpower: 70
+    mark_groups:
+      - name:
+          de: Holz
+          en: Wood
+        materials:
+          - name:
+              de: Birke Sperrholz
+              en: Birch Plywood
+            speed: 1000
+            minpower: 8
+            maxpower: 25
+      - name:
+          de: Andere
+          en: Other
+        materials:
+          - name:
+              de: Karton (Finnpappe)
+              en: Cardboard (Finnpappe)
+            speed: 1000
+            minpower: 7
+            maxpower: 18
+
+languages:
+  de:
+    strings:
+      main: allgemein
+      cut: schneiden
+      mark: gravieren
+      speed: Geschwindigkeit
+      power: Leistung
+      minpower: MinLeistung
+      maxpower: MaxLeistung
+      material: Material
+      workspace_width: Breite der Laserfläche
+      workspace_height: Höhe der Laserfläche
+      linecolor: Wähle Linienfarbe
+      advanced: erweitert
+      smoothness: glätten
+      smoothness_help: "Feinheit der Unterteilung von Kurven. Kleinere Werte sind glatter. Bereich: 0.0001 bis 5"
+      frequency: Frequenz
+      bbox_only: Nur Umrandungslinie
+      bbox_only_help: Für einen schnellen Bereichstest vorher zusammen mit „Nur abfahren“, oder anschliessend für einen sauberen Umrandungsschnitt.
+      move_only: Nur abfahren, Laser ist aus
+      move_only_help: Vorschaumodus. Zusammen mit „Box“ für einen schnellen Bereichstest.
+      device: Ausgabegerät
+      device_help: USB-Schnittstelle, oder eine Datei mit “.rd”-Endung. Die Nummer der USB- oder COM-Schnittstelle muss eventuell angepasst werden.
+      dummy_device: Dummy-Gerät
+      dummy_device_help: Es wird eine JSON Datenstruktur geschrieben. Nützlich nur für Fehlersuche und Weiterentwicklung!
+      about: Über
+    colors:
+      any: unwichtig
+      cut_none: nichts schneiden
+      mark_none: nichts markieren
+      red: rot
+      green: grün
+      blue: blau
+      black: schwarz
+      white: weiß
+      cyan: cyan
+      magenta: magenta
+      yellow: gelb
+    description: |
+      Inkscape-Thunderlaser Erweiterung von https://github.com/jnweiger/inkscape-thunderlaser
+
+      © 2017 by Jürgen Weigert [juewei@fabmail.org] und Kontributoren.
+
+      Danke an Stefan Schuermanns für das Offenlegen der Verschlüsselung https://stefan.schuermans.info/rdcam/ (und für die Hinweise zu wine!)
+
+      Danke an Klaus Kaempf für seinen Disassembler https://github.com/kkaempf/ruida des Dateiformats.
+  en:
+    strings:
+      main: main
+      cut: cut
+      mark: mark
+      speed: speed
+      power: power
+      minpower: MinPower
+      maxpower: MaxPower
+      material: material
+      workspace_width: Width of the laser area
+      workspace_height: Height of the laser area
+      linecolor: By line color
+      advanced: advanced
+      smoothness: smoothness
+      smoothness_help: "Used when rendering curves. Smaller values are smoother. Range: 0.0001 to 5"
+      frequency: frequency
+      bbox_only: Bounding box only
+      bbox_only_help: Used for a quick area check togehter with “Move only”, or for a clean frame cut afterwards.
+      move_only: Move only, laser off
+      move_only_help: Preview. Use together with “Bounding Box” mode for a quick area check.
+      device: Output device
+      device_help: USB connection or a file name with a “.rd” extension. The number of the USB or COM port may need adjustment.
+      dummy_device: Dummy device
+      dummy_device_help: Used for debugging and developent only!
+      about: about
+    colors:
+      any: any
+      cut_none: cut nothing
+      mark_none: mark nothing
+      red: red
+      green: green
+      blue: blue
+      black: black
+      white: white
+      cyan: cyan
+      magenta: magenta
+      yellow: yellow
+    description: |
+      inkscape-thunderlaser extension from https://github.com/jnweiger/inkscape-thunderlaser
+
+      © 2017 by Jürgen Weigert [juewei@fabmail.org] and contributors.
+
+      Thanks to Stefan Schuermanns for the descrambler https://stefan.schuermans.info/rdcam/ (and giving instructions with wine!)
+
+      Thanks to Klaus Kaempf for writing the disassembler https://github.com/kkaempf/ruida for the file format.
+
+colors:
+  - any
+  - none
+  - red
+  - green
+  - blue
+  - black
+  - white
+  - cyan
+  - magenta
+  - yellow
