@@ -22,7 +22,7 @@
 #        Updated InkSvg() class preserves native order of SVG elements.
 # 1.7  - Updated InkSvg() class to use inline style defs by class name, tag or id.
 # 1.7a - Survive SVG with comments.
-# 1.8  - support bodor_de.inx
+# 1.7b - allow empty path_lists if one of the colors is 'any'.
 #
 # python2 compatibility:
 from __future__ import print_function
@@ -58,7 +58,7 @@ if sys.version_info.major < 3:
 class ThunderLaser(inkex.Effect):
 
     # CAUTION: Keep in sync with thunderlaser-ruida.inx and thunderlaser-ruida_de.inx
-    __version__ = '1.8'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
+    __version__ = '1.7b'         # >= max(src/ruida.py:__version__, src/inksvg.py:__version__)
 
     def __init__(self):
         """
@@ -245,7 +245,7 @@ Option parser example:
             sys.exit(0)
 
         cut_opt  = self.cut_options()
-        mark_opt = self.mark_options()                  # FIXME: unused
+        mark_opt = self.mark_options()
         if cut_opt is None and mark_opt is None:
           inkex.errormsg(gettext.gettext('ERROR: Enable Cut or Mark or both.'))
           sys.exit(1)
@@ -325,13 +325,12 @@ Option parser example:
                                 [bbox[0][0],bbox[1][1]], [bbox[0][0],bbox[0][1]] ]]
                 paths_list_cut = paths_list
                 paths_list_mark = paths_list
-                if cut_opt is not None and mark_opt is not None:
-                        mark_opt = None         # once is enough.
+                if cut_opt['color']  == 'any' or mark_opt is None: paths_list_mark = []
+                if mark_opt['color'] == 'any' or  cut_opt is None: paths_list_cut  = []      # once is enough.
         if self.options.move_only:
                 paths_list      = rd.paths2moves(paths_list)
                 paths_list_cut  = rd.paths2moves(paths_list_cut)
                 paths_list_mark = rd.paths2moves(paths_list_mark)
-        if cut_opt is None: cut_opt = mark_opt          # so that we have at least something to do.
 
         if self.options.dummy:
                 with open('/tmp/thunderlaser.json', 'w') as fd:
@@ -346,10 +345,7 @@ Option parser example:
                                 }, fd, indent=4, sort_keys=True, encoding='utf-8')
                 print("/tmp/thunderlaser.json written.", file=sys.stderr)
         else:
-                if cut_opt is None and mark_opt is None:
-                  inkex.errormsg(gettext.gettext('ERROR: Both, Mark and Cut are disabled. Nothing todo.'))
-                  sys.exit(0)
-                if cut_opt is not None and mark_opt is not None:
+                if len(paths_list_cut) > 0 and len(paths_list_mark) > 0:
                   nlay=2
                 else:
                   nlay=1
@@ -361,24 +357,28 @@ Option parser example:
 
                 l=0
                 if mark_opt is not None:
-                  if len(paths_list_mark) == 0:
-                    inkex.errormsg(gettext.gettext('ERROR: mark line color "'+mark_opt['color']+'": nothing found.'))
-                    sys.exit(0)
-                  cc = mark_color if type(mark_color) == list else [128,0,64]
-                  rd.set(layer=l, speed=mark_opt['speed'], color=cc)
-                  rd.set(layer=l, power=[mark_opt['minpow'], mark_opt['maxpow']])
-                  rd.set(layer=l, paths=paths_list_mark)
-                  l += 1
+                  if len(paths_list_mark) > 0:
+                    cc = mark_color if type(mark_color) == list else [128,0,64]
+                    rd.set(layer=l, speed=mark_opt['speed'], color=cc)
+                    rd.set(layer=l, power=[mark_opt['minpow'], mark_opt['maxpow']])
+                    rd.set(layer=l, paths=paths_list_mark)
+                    l += 1
+                  else:
+                    if mark_opt['color'] != 'any' and len(paths_list_cut) == 0:
+                      inkex.errormsg(gettext.gettext('ERROR: mark line color "'+mark_opt['color']+'": nothing found.'))
+                      sys.exit(0)
 
                 if cut_opt is not None:
-                  if len(paths_list_cut) == 0:
-                    inkex.errormsg(gettext.gettext('ERROR: cut line color "'+cut_opt['color']+'": nothing found.'))
-                    sys.exit(0)
-                  cc = cut_color if type(cut_color) == list else [128,0,64]
-                  rd.set(layer=l, speed=cut_opt['speed'], color=cc)
-                  rd.set(layer=l, power=[cut_opt['minpow'], cut_opt['maxpow']])
-                  rd.set(layer=l, paths=paths_list_cut)
-                  l += 1
+                  if len(paths_list_cut) > 0:
+                    cc = cut_color if type(cut_color) == list else [128,0,64]
+                    rd.set(layer=l, speed=cut_opt['speed'], color=cc)
+                    rd.set(layer=l, power=[cut_opt['minpow'], cut_opt['maxpow']])
+                    rd.set(layer=l, paths=paths_list_cut)
+                    l += 1
+                  else:
+                    if cut_opt['color'] != 'any' and len(paths_list_mark) == 0:
+                      inkex.errormsg(gettext.gettext('ERROR: cut line color "'+cut_opt['color']+'": nothing found.'))
+                      sys.exit(0)
 
                 device_used = None
                 for device in self.options.devicelist.split(','):
