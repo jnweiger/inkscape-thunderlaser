@@ -29,6 +29,19 @@
 # 2017-12-25 jw, v1.7  Added getNodeStyle(), cssDictAdd(), expanded matchStrokeColor() to use
 #                      inline style defs. Added a warning message for not-implemented CSS styles.
 #                v1.7a Added getNodeStyleOne() made getNodeStyle() recurse through parents.
+# 2018-03-10 jw, v1.7b added search paths to find inkex
+
+import gettext
+import re
+import sys
+
+sys_platform = sys.platform.lower()
+if sys_platform.startswith('win'):
+  sys.path.append('C:\Program Files\Inkscape\share\extensions')
+elif sys_platform.startswith('darwin'):
+  sys.path.append('~/.config/inkscape/extensions')
+else:   # Linux
+  sys.path.append('/usr/share/inkscape/extensions/')
 
 import inkex
 import simplepath
@@ -38,15 +51,33 @@ import cubicsuperpath
 import cspsubdiv
 import bezmisc
 
-import gettext
-import re
-
-
 
 class InkSvg():
     """
+    Usage example with subclassing:
+
+    #
+    #    class ThunderLaser(inkex.Effect):
+    #            def __init__(self):
+    #                    inkex.localize()
+    #                    inkex.Effect.__init__(self)
+    #            def effect(self):
+    #                    svg = InkSvg(document=self.document, smoothness=0.2)
+    #                    svg.handleViewBox()
+    #                    svg.recursivelyTraverseSvg(self.document.getroot(), svg.docTransform)
+    #                    for tup in svg.paths:
+    #                            node = tup[0]
+    #                            ...
+    #    e = ThunderLaser()
+    #    e.affect()
+    #
+
+    Simple usage example with method invocation:
+
+    #    TBD
+
     """
-    __version__ = "1.7a"
+    __version__ = "1.7b"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -325,6 +356,9 @@ class InkSvg():
 
 
     def __init__(self, document, smoothness=0.0):
+        """
+        Usage: ...
+        """
         self.dpi = 90.0                 # factored out for inkscape-0.92
         self.px_used = False            # raw px unit depends on correct dpi.
         self.xmin, self.xmax = (1.0E70, -1.0E70)
@@ -365,12 +399,12 @@ class InkSvg():
         '''
         str = self.document.getroot().get(name)
         if str:
-            return self.LengthWithUnit(str)
+            return self.lengthWithUnit(str)
         else:
             # No width specified; assume the default value
             return float(default)
 
-    def LengthWithUnit(self, strn, default_unit='px'):
+    def lengthWithUnit(self, strn, default_unit='px'):
         v, u = self.parseLengthWithUnits(strn, default_unit)
         if v is None:
             # Couldn't parse the value
