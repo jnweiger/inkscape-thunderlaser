@@ -39,8 +39,8 @@ machines:
             minpower: 70
             maxpower: 70
       - name:
-          de: Pappe
-          en: Cardboard
+          de: Andere
+          en: Other
         materials:
           - name:
               de: Karton 2 mm
