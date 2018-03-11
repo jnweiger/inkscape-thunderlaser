@@ -70,7 +70,9 @@ else:   # Linux
 # 2017-12-25 jw, v1.7  Added getNodeStyle(), cssDictAdd(), expanded matchStrokeColor() to use
 #                      inline style defs. Added a warning message for not-implemented CSS styles.
 #                v1.7a Added getNodeStyleOne() made getNodeStyle() recurse through parents.
-# 2018-03-10 jw, v1.7b added search paths to find inkex
+# 2018-03-10 jw, v1.7b Added search paths to find inkex.
+#                v1.7c Refactoring for simpler interface without subclassing.
+#                      Added load(), getElementsByIds() methods.
 
 import gettext
 import re
@@ -92,6 +94,7 @@ import cubicsuperpath
 import cspsubdiv
 import bezmisc
 
+from lxml import etree
 
 class InkSvg():
     """
@@ -115,12 +118,56 @@ class InkSvg():
 
     Simple usage example with method invocation:
 
-    #    TBD
+    #    svg = InkSvg(smoothness=0.01)
+    #    svg.load(svgfile)
+    #    svg.traverse([ids...])
+    #    ... TBD
+    #           transform = svg.recursivelyGetEnclosingTransform(node)
+    #           svg.recursivelyTraverseSvg(svg.document.getroot(), svg.docTransform)
 
     """
-    __version__ = "1.7b"
+    __version__ = "1.7c"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
+
+    # imports from inkex
+    NSS = inkex.NSS
+
+    def getElementsByIds(self, ids):
+        """
+        ids be a string of a comma seperated values, or a list of strings.
+        Returns a list of xml nodes.
+        """
+        if not self.document:
+          raise ValueError("no document loaded.")
+        if isinstance(ids, (bytes, str)): ids = [ ids ]   # handle some scalars
+        ids = ','.join(ids).split(',')                    # merge into a string and re-split
+
+        ## OO-Fail:
+        # cannot use inkex.getElementById() -- it returns only the first element of each hit.
+        # cannot use inkex.getselected() -- it returns the last element of each hit only.
+        """Collect selected nodes"""
+        nodes = []
+        for id in ids:
+          if id != '':    # empty strings happen after splitting...
+            path = '//*[@id="%s"]' % id
+            el_list = self.document.xpath(path, namespaces=InkSvg.NSS)
+            if el_list:
+              for node in el_list:
+                nodes.append(node)
+            else:
+              raise ValueError("id "+id+" not found in the svg document.")
+        return nodes
+
+
+    def load(self, filename):
+        inkex.localize()
+        # OO-Fail: cannot call inkex.Effect.parse(), Effect constructor has so many side-effects.
+        stream = open(filename, 'r')
+        p = etree.XMLParser(huge_tree=True)
+        self.document = etree.parse(stream, parser=p)
+        stream.close()
+
 
     def getNodeStyleOne(self, node):
         """
@@ -396,7 +443,7 @@ class InkSvg():
         return v, u
 
 
-    def __init__(self, document, smoothness=0.0):
+    def __init__(self, document=None, svgfile=None, smoothness=0.1):
         """
         Usage: ...
         """
@@ -405,8 +452,8 @@ class InkSvg():
         self.xmin, self.xmax = (1.0E70, -1.0E70)
         self.ymin, self.ymax = (1.0E70, -1.0E70)
 
-        self.document = document        # from  inkex.Effect.parse()
-        self.smoothness = smoothness    # 0.0001 .. 5.0
+        # CAUTION: smoothness == 0.0 leads to a busy-loop.
+        self.smoothness = max(0.0001, smoothness)    # 0.0001 .. 5.0
 
         # List of paths we will construct.  Path lists are paired with the SVG node
         # they came from.  Such pairing can be useful when you actually want
@@ -427,6 +474,13 @@ class InkSvg():
         # Dictionary of warnings issued.  This to prevent from warning
         # multiple times about the same problem
         self.warnings = {}
+
+        if document:
+            self.document = document
+            if svgfile:
+                inkex.errormsg('Warning: ignoring svgfile. document given too.')
+        elif svgfile:
+            self.document = self.load(svgfile)
 
     def getLength(self, name, default):
 
