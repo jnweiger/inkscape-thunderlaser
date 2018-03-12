@@ -96,6 +96,53 @@ import bezmisc
 
 from lxml import etree
 
+class PathGenerator():
+    """
+    A PathGenerator has methods for different svg objects. It compiles an
+    internal representation of them all, handling transformations and linear
+    interpolation of curved path segments.
+
+    The base class PathGenerator is dummy (abstract) class that raises an
+    NotImplementedError() on each method entry point. It serves as documentation for
+    the generator interface.
+    """
+    def __init__(self):
+        self._svg = None
+
+    def registerSvg(self, svg):
+        self._svg = svg
+
+    def simplePath(self, d, node, mat):
+        raise NotImplementedError("See example inksvg.LinearPathGen.simplePath()")
+
+    def roundedRect(self, x, y, w, h, rx, ry, node, mat):
+        raise NotImplementedError("See example inksvg.LinearPathGen.roundedRect()")
+
+
+class LinearPathGen(PathGenerator):
+
+    def __init__(self, smoothness=0.2):
+        self.smoothness = max(0.0001, smoothness)
+
+    def pathVertices(self, d, node, mat):
+        """
+        d is expected formatted as an svg path string here.
+        """
+        print("calling getPathVertices",  self.smoothness)
+        self._svg.getPathVertices(d, node, mat, self.smoothness)
+
+    def simplePath(self, d, node, mat):
+        """
+        d is expected as an [[cmd, [args]], ...] arrray
+        """
+        return self.pathVertices(simplepath.formatPath(d), node, mat)
+
+    def roundedRect(self, x, y, w, h, rx, ry, node, mat):
+        print("calling roundedRectBezier")
+        d = self._svg.roundedRectBezier(x, y, w, h, rx, ry)
+        self._svg.getPathVertices(d, node, mat, self.smoothness)
+
+
 class InkSvg():
     """
     Usage example with subclassing:
@@ -106,7 +153,7 @@ class InkSvg():
     #                    inkex.localize()
     #                    inkex.Effect.__init__(self)
     #            def effect(self):
-    #                    svg = InkSvg(document=self.document, smoothness=0.2)
+    #                    svg = InkSvg(document=self.document, pathgen=LinearPathGen(smoothness=0.2))
     #                    svg.handleViewBox()
     #                    svg.recursivelyTraverseSvg(self.document.getroot(), svg.docTransform)
     #                    for tup in svg.paths:
@@ -118,7 +165,7 @@ class InkSvg():
 
     Simple usage example with method invocation:
 
-    #    svg = InkSvg(smoothness=0.01)
+    #    svg = InkSvg(pathgen=LinearPathGen(smoothness=0.01))
     #    svg.load(svgfile)
     #    svg.traverse([ids...])
     #    ... TBD
@@ -443,7 +490,7 @@ class InkSvg():
         return v, u
 
 
-    def __init__(self, document=None, svgfile=None, smoothness=0.1):
+    def __init__(self, document=None, svgfile=None, smoothness=0.2, pathgen=LinearPathGen(smoothness=0.2)):
         """
         Usage: ...
         """
@@ -452,8 +499,11 @@ class InkSvg():
         self.xmin, self.xmax = (1.0E70, -1.0E70)
         self.ymin, self.ymax = (1.0E70, -1.0E70)
 
+        # CAUTION: smoothness here is deprecated. it belongs into pathgen, if.
         # CAUTION: smoothness == 0.0 leads to a busy-loop.
         self.smoothness = max(0.0001, smoothness)    # 0.0001 .. 5.0
+        self.pathgen = pathgen
+        pathgen.registerSvg(self)
 
         # List of paths we will construct.  Path lists are paired with the SVG node
         # they came from.  Such pairing can be useful when you actually want
@@ -591,7 +641,7 @@ class InkSvg():
                     sy = self.docHeight / float(vinfo[3])
                     self.docTransform = simpletransform.parseTransform('scale(%f,%f)' % (sx, sy))
 
-    def getPathVertices(self, path, node=None, transform=None):
+    def getPathVertices(self, path, node=None, transform=None, smoothness=None):
 
         '''
         Decompose the path data from an SVG element into individual
@@ -604,6 +654,9 @@ class InkSvg():
         the SVG file as much as possible, while still making all attributes
         if the node available when processing the path list.
         '''
+
+        if not smoothness:
+            smoothness = self.smoothness        # self.smoothness is deprecated.
 
         if (not path) or (len(path) == 0):
             # Nothing to do
@@ -639,7 +692,7 @@ class InkSvg():
                 subpath_list.append([subpath_vertices, [sp_xmin, sp_xmax, sp_ymin, sp_ymax]])
 
             subpath_vertices = []
-            self.subdivideCubicPath(sp, float(self.smoothness))
+            self.subdivideCubicPath(sp, float(smoothness))
 
             # Note the first point of the subpath
             first_point = sp[0][1]
@@ -772,7 +825,7 @@ class InkSvg():
 
                 path_data = node.get('d')
                 if path_data:
-                    self.getPathVertices(path_data, node, matNew)
+                    self.pathgen.pathVertices(path_data, node, matNew)
 
             elif node.tag == inkex.addNS('rect', 'svg') or node.tag == 'rect':
 
@@ -799,8 +852,7 @@ class InkSvg():
                 if rx > 0.0 or ry > 0.0:
                     if   ry < 0.0000001: ry = rx
                     elif rx < 0.0000001: rx = ry
-                    d = self.roundedRectBezier(x, y, w, h, rx, ry)
-                    self.getPathVertices(d, node, matNew)
+                    self.pathgen.roundedRect(x, y, w, h, rx, ry, node, matNew)
                 else:
                     a = []
                     a.append(['M ', [x, y]])
@@ -808,7 +860,7 @@ class InkSvg():
                     a.append([' l ', [0, h]])
                     a.append([' l ', [-w, 0]])
                     a.append([' Z', []])
-                    self.getPathVertices(simplepath.formatPath(a), node, matNew)
+                    self.pathgen.simplePath(a, node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':
 
@@ -829,7 +881,7 @@ class InkSvg():
                 a = []
                 a.append(['M ', [x1, y1]])
                 a.append([' L ', [x2, y2]])
-                self.getPathVertices(simplepath.formatPath(a), node, matNew)
+                self.pathgen.simplePath(a, node, matNew)
 
             elif node.tag == inkex.addNS('polyline', 'svg') or node.tag == 'polyline':
 
@@ -849,7 +901,7 @@ class InkSvg():
 
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('polygon', 'svg') or node.tag == 'polygon':
 
@@ -870,7 +922,7 @@ class InkSvg():
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
                 d += " Z"
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('ellipse', 'svg') or node.tag == 'ellipse' or \
                  node.tag == inkex.addNS('circle', 'svg')  or node.tag == 'circle':
@@ -910,7 +962,7 @@ class InkSvg():
                     '0 1 0 %f,%f ' % (x2, cy) + \
                     'A %f,%f '     % (rx, ry) + \
                     '0 1 0 %f,%f'  % (x1, cy)
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('pattern', 'svg') or node.tag == 'pattern':
                 pass
@@ -1862,7 +1914,9 @@ Option parser example:
 
 
     def effect(self):
-        svg = InkSvg(document=self.document, smoothness=float(self.options.smoothness))
+        smooth = float(self.options.smoothness) # svg.smoothness to be deprecated!
+        pg = LinearPathGen(smoothness=smooth)
+        svg = InkSvg(document=self.document, pathgen=pg, smoothness=smooth)
 
         # Viewbox handling
         svg.handleViewBox()

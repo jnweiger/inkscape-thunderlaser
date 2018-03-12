@@ -70,7 +70,6 @@ class PathGenerator():
 
     def registerSvg(self, svg):
         self._svg = svg
-        print("Registered!")
 
     def simplePath(self, d, node, mat):
         raise NotImplementedError("See example inksvg.LinearPathGen.simplePath()")
@@ -84,9 +83,18 @@ class LinearPathGen(PathGenerator):
     def __init__(self, smoothness=0.2):
         self.smoothness = max(0.0001, smoothness)
 
-    def simplePath(self, d, node, mat):
+    def pathVertices(self, d, node, mat):
+        """
+        d is expected formatted as an svg path string here.
+        """
         print("calling getPathVertices",  self.smoothness)
-        self._svg.getPathVertices(simplepath.formatPath(d), node, mat, self.smoothness)
+        self._svg.getPathVertices(d, node, mat, self.smoothness)
+
+    def simplePath(self, d, node, mat):
+        """
+        d is expected as an [[cmd, [args]], ...] arrray
+        """
+        return self.pathVertices(simplepath.formatPath(d), node, mat)
 
     def roundedRect(self, x, y, w, h, rx, ry, node, mat):
         print("calling roundedRectBezier")
@@ -776,7 +784,7 @@ class InkSvg():
 
                 path_data = node.get('d')
                 if path_data:
-                    self.getPathVertices(path_data, node, matNew)
+                    self.pathgen.pathVertices(path_data, node, matNew)
 
             elif node.tag == inkex.addNS('rect', 'svg') or node.tag == 'rect':
 
@@ -804,8 +812,6 @@ class InkSvg():
                     if   ry < 0.0000001: ry = rx
                     elif rx < 0.0000001: rx = ry
                     self.pathgen.roundedRect(x, y, w, h, rx, ry, node, matNew)
-                    # d = self.roundedRectBezier(x, y, w, h, rx, ry)
-                    # self.getPathVertices(d, node, matNew)
                 else:
                     a = []
                     a.append(['M ', [x, y]])
@@ -814,7 +820,6 @@ class InkSvg():
                     a.append([' l ', [-w, 0]])
                     a.append([' Z', []])
                     self.pathgen.simplePath(a, node, matNew)
-                    # self.getPathVertices(simplepath.formatPath(a), node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':
 
@@ -835,7 +840,7 @@ class InkSvg():
                 a = []
                 a.append(['M ', [x1, y1]])
                 a.append([' L ', [x2, y2]])
-                self.getPathVertices(simplepath.formatPath(a), node, matNew)
+                self.pathgen.simplePath(a, node, matNew)
 
             elif node.tag == inkex.addNS('polyline', 'svg') or node.tag == 'polyline':
 
@@ -855,7 +860,7 @@ class InkSvg():
 
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('polygon', 'svg') or node.tag == 'polygon':
 
@@ -876,7 +881,7 @@ class InkSvg():
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
                 d += " Z"
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('ellipse', 'svg') or node.tag == 'ellipse' or \
                  node.tag == inkex.addNS('circle', 'svg')  or node.tag == 'circle':
@@ -916,7 +921,7 @@ class InkSvg():
                     '0 1 0 %f,%f ' % (x2, cy) + \
                     'A %f,%f '     % (rx, ry) + \
                     '0 1 0 %f,%f'  % (x1, cy)
-                self.getPathVertices(d, node, matNew)
+                self.pathgen.pathVertices(d, node, matNew)
 
             elif node.tag == inkex.addNS('pattern', 'svg') or node.tag == 'pattern':
                 pass
