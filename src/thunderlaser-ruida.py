@@ -42,7 +42,7 @@ else:   # Linux
 ## INLINE_BLOCK_START
 # for easier distribution, our Makefile can inline these imports when generating thunderlaser.py from src/rudia-laser.py
 from ruida import Ruida
-from inksvg import InkSvg
+from inksvg import InkSvg, LinearPathGen
 ## INLINE_BLOCK_END
 
 import json
@@ -236,7 +236,9 @@ Option parser example:
 
 
     def effect(self):
-        svg = InkSvg(document=self.document, smoothness=float(self.options.smoothness))
+        smooth = float(self.options.smoothness) # svg.smoothness to be deprecated!
+        pg = LinearPathGen(smoothness=smooth)
+        svg = InkSvg(document=self.document, pathgen=pg, smoothness=smooth)
 
         # Viewbox handling
         svg.handleViewBox()
