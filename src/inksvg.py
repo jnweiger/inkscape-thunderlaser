@@ -876,7 +876,7 @@ class InkSvg():
                     en = float(node.get(inkex.addNS('end', 'sodipodi'), '0'))
                     cl = path_data.strip()[-1] in ('z', 'Z')
                     self.pathgen.objArc(path_data, cx, cy, rx, ry, st, en, cl, node, matNew)
-                else
+                else:
                     ### sodipodi:type="star" also comes here. TBD later, if need be.
                     self.pathgen.pathString(path_data, node, matNew)
 
