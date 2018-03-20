@@ -32,6 +32,7 @@
 # 2018-03-10 jw, v1.7b Added search paths to find inkex.
 #                v1.7c Refactoring for simpler interface without subclassing.
 #                      Added load(), getElementsByIds() methods.
+# 2018-03-21 jw, v1.7d Added handleViewBox() to load().
 
 import gettext
 import re
@@ -70,6 +71,7 @@ class PathGenerator():
 
     def registerSvg(self, svg):
         self._svg = svg
+        svg.stats = self.stats
 
     def pathString(self, d, node, mat):
         """
@@ -155,16 +157,16 @@ class LinearPathGen(PathGenerator):
         arcs. In general (an ellipse), we convert
 
           <ellipse rx="RX" ry="RY" cx="X" cy="Y"/>
- 
+
         to
 
           <path d="MX1,CY A RX,RY 0 1 0 X2,CY A RX,RY 0 1 0 X1,CY"/>
- 
+
         where
 
           X1 = CX - RX
           X2 = CX + RX
- 
+
         Note: ellipses or circles with a radius attribute of value 0
         are ignored
         """
@@ -257,6 +259,8 @@ class InkSvg():
         p = etree.XMLParser(huge_tree=True)
         self.document = etree.parse(stream, parser=p)
         stream.close()
+        # initialize a coordinate system that can be picked up by pathgen.
+        self.handleViewBox()
 
 
     def getNodeStyleOne(self, node):
@@ -626,6 +630,12 @@ class InkSvg():
         Get the document's height and width attributes from the <svg> tag.
         Use a default value in case the property is not present or is
         expressed in units of percentages.
+
+        This initializes:
+        * self.basename
+        * self.docWidth
+        * self.docHeight
+        * self.dpi
         '''
 
         inkscape_version = self.document.getroot().get(
@@ -673,6 +683,13 @@ class InkSvg():
         '''
         Set up the document-wide transform in the event that the document has
         an SVG viewbox
+
+        This initializes:
+        * self.basename
+        * self.docWidth
+        * self.docHeight
+        * self.dpi
+        * self.docTransform
         '''
 
         if self.getDocProps():
