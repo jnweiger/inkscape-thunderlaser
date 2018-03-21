@@ -33,6 +33,7 @@
 #                v1.7c Refactoring for simpler interface without subclassing.
 #                      Added load(), getElementsByIds() methods.
 # 2018-03-21 jw, v1.7d Added handleViewBox() to load().
+#                      Added traverse().
 
 import gettext
 import re
@@ -213,9 +214,7 @@ class InkSvg():
     #    svg = InkSvg(pathgen=LinearPathGen(smoothness=0.01))
     #    svg.load(svgfile)
     #    svg.traverse([ids...])
-    #    ... TBD
-    #           transform = svg.recursivelyGetEnclosingTransform(node)
-    #           svg.recursivelyTraverseSvg(svg.document.getroot(), svg.docTransform)
+    #    print(svg.pathgen.path)
 
     """
     __version__ = "1.7c"
@@ -261,6 +260,24 @@ class InkSvg():
         stream.close()
         # initialize a coordinate system that can be picked up by pathgen.
         self.handleViewBox()
+
+    def traverse(self, ids=None):
+        """
+        Recursively traverse the SVG document. If ids are given, all matching nodes
+        are taken as start positions for traversal. Otherwise traveral starts at
+        the root node of the document.
+        """
+        selected = []
+        if ids is not None:
+          selected = self.getElementsByIds(ids)
+        if len(selected):
+          # Traverse the selected objects
+          for node in selected:
+            transform = self.recursivelyGetEnclosingTransform(node)
+            self.recursivelyTraverseSvg([node], transform)
+        else:
+          # Traverse the entire document building new, transformed paths
+          self.recursivelyTraverseSvg(self.document.getroot(), self.docTransform)
 
 
     def getNodeStyleOne(self, node):
@@ -991,7 +1008,7 @@ class InkSvg():
 
                 cx = float(node.get('cx', '0'))
                 cy = float(node.get('cy', '0'))
-                self.pathgen.objEllipse(cx, xy, rx, ry, node, matNew)
+                self.pathgen.objEllipse(cx, cy, rx, ry, node, matNew)
 
             elif node.tag == inkex.addNS('pattern', 'svg') or node.tag == 'pattern':
                 pass
