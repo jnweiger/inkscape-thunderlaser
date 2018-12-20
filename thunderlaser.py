@@ -73,6 +73,8 @@ else:   # Linux
 # 2018-03-10 jw, v1.7b Added search paths to find inkex.
 #                v1.7c Refactoring for simpler interface without subclassing.
 #                      Added load(), getElementsByIds() methods.
+# 2018-03-21 jw, v1.7d Added handleViewBox() to load().
+#                      Added traverse().
 
 import gettext
 import re
@@ -111,12 +113,40 @@ class PathGenerator():
 
     def registerSvg(self, svg):
         self._svg = svg
+        # svg.stats = self.stats
 
-    def simplePath(self, d, node, mat):
-        raise NotImplementedError("See example inksvg.LinearPathGen.simplePath()")
+    def pathString(self, d, node, mat):
+        """
+        d is expected formatted as an svg path string here.
+        """
+        raise NotImplementedError("See example inksvg.LinearPathGen.pathString()")
 
-    def roundedRect(self, x, y, w, h, rx, ry, node, mat):
-        raise NotImplementedError("See example inksvg.LinearPathGen.roundedRect()")
+    def pathList(self, d, node, mat):
+        """
+        d is expected as an [[cmd, [args]], ...] arrray
+        """
+        raise NotImplementedError("See example inksvg.LinearPathGen.pathList()")
+
+    def objRect(x, y, w, h, node, mat):
+        raise NotImplementedError("See example inksvg.LinearPathGen.objRect()")
+
+    def objRoundedRect(self, x, y, w, h, rx, ry, node, mat):
+        raise NotImplementedError("See example inksvg.LinearPathGen.objRoundedRect()")
+
+    def objEllipse(self, cx, cy, rx, ry, node, mat):
+        raise NotImplementedError("See example inksvg.LinearPathGen.objEllipse()")
+
+    def objArc(self, d, cx, cy, rx, ry, st, en, cl, node, mat):
+        """
+        SVG does not have an arc element. Inkscape creates officially a path element,
+        but also (redundantly) provides the original arc values.
+        Implementations can choose to work with the path d and ignore the rest,
+        or work with the cx, cy, rx, ry, ... parameters and ignore d.
+        Note: the parameter closed=True/False is actually derived from looking at the last
+        command of path d. Hackish, but there is no 'sodipodi:closed' element, or similar.
+        """
+        raise NotImplementedError("See example inksvg.LinearPathGen.objArc()")
+
 
 
 class LinearPathGen(PathGenerator):
@@ -124,23 +154,80 @@ class LinearPathGen(PathGenerator):
     def __init__(self, smoothness=0.2):
         self.smoothness = max(0.0001, smoothness)
 
-    def pathVertices(self, d, node, mat):
+    def pathString(self, d, node, mat):
         """
         d is expected formatted as an svg path string here.
         """
         print("calling getPathVertices",  self.smoothness)
         self._svg.getPathVertices(d, node, mat, self.smoothness)
 
-    def simplePath(self, d, node, mat):
+    def pathList(self, d, node, mat):
         """
         d is expected as an [[cmd, [args]], ...] arrray
         """
-        return self.pathVertices(simplepath.formatPath(d), node, mat)
+        return self.pathString(simplepath.formatPath(d), node, mat)
 
-    def roundedRect(self, x, y, w, h, rx, ry, node, mat):
+    def objRect(self, x, y, w, h, node, mat):
+        """
+        Manually transform
+
+           <rect x="X" y="Y" width="W" height="H"/>
+
+        into
+
+           <path d="MX,Y lW,0 l0,H l-W,0 z"/>
+
+        I.e., explicitly draw three sides of the rectangle and the
+        fourth side implicitly
+        """
+        a = []
+        a.append(['M ', [x, y]])
+        a.append([' l ', [w, 0]])
+        a.append([' l ', [0, h]])
+        a.append([' l ', [-w, 0]])
+        a.append([' Z', []])
+        self.pathList(a, node, mat)
+
+    def objRoundedRect(self, x, y, w, h, rx, ry, node, mat):
         print("calling roundedRectBezier")
         d = self._svg.roundedRectBezier(x, y, w, h, rx, ry)
         self._svg.getPathVertices(d, node, mat, self.smoothness)
+
+    def objEllipse(self, cx, cy, rx, ry, node, mat):
+        """
+        Convert circles and ellipses to a path with two 180 degree
+        arcs. In general (an ellipse), we convert
+
+          <ellipse rx="RX" ry="RY" cx="X" cy="Y"/>
+
+        to
+
+          <path d="MX1,CY A RX,RY 0 1 0 X2,CY A RX,RY 0 1 0 X1,CY"/>
+
+        where
+
+          X1 = CX - RX
+          X2 = CX + RX
+
+        Note: ellipses or circles with a radius attribute of value 0
+        are ignored
+        """
+        x1 = cx - rx
+        x2 = cx + rx
+        d = 'M %f,%f '     % (x1, cy) + \
+            'A %f,%f '     % (rx, ry) + \
+            '0 1 0 %f,%f ' % (x2, cy) + \
+            'A %f,%f '     % (rx, ry) + \
+            '0 1 0 %f,%f'  % (x1, cy)
+        self.pathString(d, node, mat)
+
+    def objArc(self, d, cx, cy, rx, ry, st, en, cl, node, mat):
+        """
+        We ignore the cx, cy, rx, ry data, and are happy that inkscape
+        also provides the same information as a path.
+        """
+        self.pathString(d, node, mat)
+
 
 
 class InkSvg():
@@ -168,9 +255,7 @@ class InkSvg():
     #    svg = InkSvg(pathgen=LinearPathGen(smoothness=0.01))
     #    svg.load(svgfile)
     #    svg.traverse([ids...])
-    #    ... TBD
-    #           transform = svg.recursivelyGetEnclosingTransform(node)
-    #           svg.recursivelyTraverseSvg(svg.document.getroot(), svg.docTransform)
+    #    print(svg.pathgen.path)
 
     """
     __version__ = "1.7c"
@@ -214,6 +299,26 @@ class InkSvg():
         p = etree.XMLParser(huge_tree=True)
         self.document = etree.parse(stream, parser=p)
         stream.close()
+        # initialize a coordinate system that can be picked up by pathgen.
+        self.handleViewBox()
+
+    def traverse(self, ids=None):
+        """
+        Recursively traverse the SVG document. If ids are given, all matching nodes
+        are taken as start positions for traversal. Otherwise traveral starts at
+        the root node of the document.
+        """
+        selected = []
+        if ids is not None:
+          selected = self.getElementsByIds(ids)
+        if len(selected):
+          # Traverse the selected objects
+          for node in selected:
+            transform = self.recursivelyGetEnclosingTransform(node)
+            self.recursivelyTraverseSvg([node], transform)
+        else:
+          # Traverse the entire document building new, transformed paths
+          self.recursivelyTraverseSvg(self.document.getroot(), self.docTransform)
 
 
     def getNodeStyleOne(self, node):
@@ -583,6 +688,12 @@ class InkSvg():
         Get the document's height and width attributes from the <svg> tag.
         Use a default value in case the property is not present or is
         expressed in units of percentages.
+
+        This initializes:
+        * self.basename
+        * self.docWidth
+        * self.docHeight
+        * self.dpi
         '''
 
         inkscape_version = self.document.getroot().get(
@@ -630,6 +741,13 @@ class InkSvg():
         '''
         Set up the document-wide transform in the event that the document has
         an SVG viewbox
+
+        This initializes:
+        * self.basename
+        * self.docWidth
+        * self.docHeight
+        * self.dpi
+        * self.docTransform
         '''
 
         if self.getDocProps():
@@ -823,22 +941,21 @@ class InkSvg():
 
             elif node.tag == inkex.addNS('path', 'svg'):
 
-                path_data = node.get('d')
-                if path_data:
-                    self.pathgen.pathVertices(path_data, node, matNew)
+                path_data = node.get('d', '')
+                if node.get(inkex.addNS('type', 'sodipodi'), '') == 'arc':
+                    cx = float(node.get(inkex.addNS('cx', 'sodipodi'), '0'))
+                    cy = float(node.get(inkex.addNS('cy', 'sodipodi'), '0'))
+                    rx = float(node.get(inkex.addNS('rx', 'sodipodi'), '0'))
+                    ry = float(node.get(inkex.addNS('ry', 'sodipodi'), '0'))
+                    st = float(node.get(inkex.addNS('start', 'sodipodi'), '0'))
+                    en = float(node.get(inkex.addNS('end', 'sodipodi'), '0'))
+                    cl = path_data.strip()[-1] in ('z', 'Z')
+                    self.pathgen.objArc(path_data, cx, cy, rx, ry, st, en, cl, node, matNew)
+                else:
+                    ### sodipodi:type="star" also comes here. TBD later, if need be.
+                    self.pathgen.pathString(path_data, node, matNew)
 
             elif node.tag == inkex.addNS('rect', 'svg') or node.tag == 'rect':
-
-                # Manually transform
-                #
-                #    <rect x="X" y="Y" width="W" height="H"/>
-                #
-                # into
-                #
-                #    <path d="MX,Y lW,0 l0,H l-W,0 z"/>
-                #
-                # I.e., explicitly draw three sides of the rectangle and the
-                # fourth side implicitly
 
                 # Create a path with the outline of the rectangle
                 # Adobe Illustrator leaves out 'x'='0'.
@@ -852,15 +969,9 @@ class InkSvg():
                 if rx > 0.0 or ry > 0.0:
                     if   ry < 0.0000001: ry = rx
                     elif rx < 0.0000001: rx = ry
-                    self.pathgen.roundedRect(x, y, w, h, rx, ry, node, matNew)
+                    self.pathgen.objRoundedRect(x, y, w, h, rx, ry, node, matNew)
                 else:
-                    a = []
-                    a.append(['M ', [x, y]])
-                    a.append([' l ', [w, 0]])
-                    a.append([' l ', [0, h]])
-                    a.append([' l ', [-w, 0]])
-                    a.append([' Z', []])
-                    self.pathgen.simplePath(a, node, matNew)
+                    self.pathgen.objRect(x, y, w, h, node, matNew)
 
             elif node.tag == inkex.addNS('line', 'svg') or node.tag == 'line':
 
@@ -881,7 +992,7 @@ class InkSvg():
                 a = []
                 a.append(['M ', [x1, y1]])
                 a.append([' L ', [x2, y2]])
-                self.pathgen.simplePath(a, node, matNew)
+                self.pathgen.pathList(a, node, matNew)
 
             elif node.tag == inkex.addNS('polyline', 'svg') or node.tag == 'polyline':
 
@@ -901,7 +1012,7 @@ class InkSvg():
 
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
-                self.pathgen.pathVertices(d, node, matNew)
+                self.pathgen.pathString(d, node, matNew)
 
             elif node.tag == inkex.addNS('polygon', 'svg') or node.tag == 'polygon':
 
@@ -922,27 +1033,10 @@ class InkSvg():
                 pa = pl.split()
                 d = "".join(["M " + pa[i] if i == 0 else " L " + pa[i] for i in range(0, len(pa))])
                 d += " Z"
-                self.pathgen.pathVertices(d, node, matNew)
+                self.pathgen.pathString(d, node, matNew)
 
             elif node.tag == inkex.addNS('ellipse', 'svg') or node.tag == 'ellipse' or \
                  node.tag == inkex.addNS('circle', 'svg')  or node.tag == 'circle':
-
-                # Convert circles and ellipses to a path with two 180 degree
-                # arcs. In general (an ellipse), we convert
-                #
-                #   <ellipse rx="RX" ry="RY" cx="X" cy="Y"/>
-                #
-                # to
-                #
-                #   <path d="MX1,CY A RX,RY 0 1 0 X2,CY A RX,RY 0 1 0 X1,CY"/>
-                #
-                # where
-                #
-                #   X1 = CX - RX
-                #   X2 = CX + RX
-                #
-                # Note: ellipses or circles with a radius attribute of value 0
-                # are ignored
 
                 if node.tag == inkex.addNS('ellipse', 'svg') or node.tag == 'ellipse':
                     rx = float(node.get('rx', '0'))
@@ -955,14 +1049,7 @@ class InkSvg():
 
                 cx = float(node.get('cx', '0'))
                 cy = float(node.get('cy', '0'))
-                x1 = cx - rx
-                x2 = cx + rx
-                d = 'M %f,%f '     % (x1, cy) + \
-                    'A %f,%f '     % (rx, ry) + \
-                    '0 1 0 %f,%f ' % (x2, cy) + \
-                    'A %f,%f '     % (rx, ry) + \
-                    '0 1 0 %f,%f'  % (x1, cy)
-                self.pathgen.pathVertices(d, node, matNew)
+                self.pathgen.objEllipse(cx, cy, rx, ry, node, matNew)
 
             elif node.tag == inkex.addNS('pattern', 'svg') or node.tag == 'pattern':
                 pass

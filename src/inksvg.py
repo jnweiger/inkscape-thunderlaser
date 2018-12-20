@@ -72,7 +72,7 @@ class PathGenerator():
 
     def registerSvg(self, svg):
         self._svg = svg
-        svg.stats = self.stats
+        # svg.stats = self.stats
 
     def pathString(self, d, node, mat):
         """
@@ -92,7 +92,7 @@ class PathGenerator():
     def objRoundedRect(self, x, y, w, h, rx, ry, node, mat):
         raise NotImplementedError("See example inksvg.LinearPathGen.objRoundedRect()")
 
-    def objEllipse(self, cx, xy, rx, ry, node, mat):
+    def objEllipse(self, cx, cy, rx, ry, node, mat):
         raise NotImplementedError("See example inksvg.LinearPathGen.objEllipse()")
 
     def objArc(self, d, cx, cy, rx, ry, st, en, cl, node, mat):
@@ -126,7 +126,7 @@ class LinearPathGen(PathGenerator):
         """
         return self.pathString(simplepath.formatPath(d), node, mat)
 
-    def objRect(x, y, w, h, node, mat):
+    def objRect(self, x, y, w, h, node, mat):
         """
         Manually transform
 
@@ -145,14 +145,14 @@ class LinearPathGen(PathGenerator):
         a.append([' l ', [0, h]])
         a.append([' l ', [-w, 0]])
         a.append([' Z', []])
-        self.pathList(a, node, matNew)
+        self.pathList(a, node, mat)
 
     def objRoundedRect(self, x, y, w, h, rx, ry, node, mat):
         print("calling roundedRectBezier")
         d = self._svg.roundedRectBezier(x, y, w, h, rx, ry)
         self._svg.getPathVertices(d, node, mat, self.smoothness)
 
-    def objEllipse(self, cx, xy, rx, ry, node, mat):
+    def objEllipse(self, cx, cy, rx, ry, node, mat):
         """
         Convert circles and ellipses to a path with two 180 degree
         arcs. In general (an ellipse), we convert
@@ -178,14 +178,14 @@ class LinearPathGen(PathGenerator):
             '0 1 0 %f,%f ' % (x2, cy) + \
             'A %f,%f '     % (rx, ry) + \
             '0 1 0 %f,%f'  % (x1, cy)
-        self.pathString(d, node, matNew)
+        self.pathString(d, node, mat)
 
     def objArc(self, d, cx, cy, rx, ry, st, en, cl, node, mat):
         """
         We ignore the cx, cy, rx, ry data, and are happy that inkscape
         also provides the same information as a path.
         """
-        self.pathString(d, node, matNew)
+        self.pathString(d, node, mat)
 
 
 

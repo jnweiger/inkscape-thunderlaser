@@ -4,9 +4,6 @@
   <name>Thunderlaser RUIDA (DE)</name>
   <id>com.github.jnweiger.inskscape-thunderlaser.de</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
-  <dependency type="executable" location="extensions">inkex.py</dependency>
-  <dependency type="executable" location="extensions">inksvg.py</dependency>
-  <dependency type="executable" location="extensions">ruida.py</dependency>
   <dependency type="executable" location="extensions">thunderlaser-ruida.py</dependency>
   <param name="tab" type="notebook">
     <page name='thunderlaser' gui-text='Thunderlaser'>
