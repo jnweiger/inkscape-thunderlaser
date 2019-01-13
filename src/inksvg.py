@@ -34,6 +34,7 @@
 #                      Added load(), getElementsByIds() methods.
 # 2018-03-21 jw, v1.7d Added handleViewBox() to load().
 #                      Added traverse().
+# 2019-01-12 jw, v1.7e debug output to self.tty
 
 import gettext
 import re
@@ -117,7 +118,7 @@ class LinearPathGen(PathGenerator):
         """
         d is expected formatted as an svg path string here.
         """
-        print("calling getPathVertices",  self.smoothness)
+        print("calling getPathVertices",  self.smoothness, file=self._svg.tty)
         self._svg.getPathVertices(d, node, mat, self.smoothness)
 
     def pathList(self, d, node, mat):
@@ -148,7 +149,7 @@ class LinearPathGen(PathGenerator):
         self.pathList(a, node, mat)
 
     def objRoundedRect(self, x, y, w, h, rx, ry, node, mat):
-        print("calling roundedRectBezier")
+        print("calling roundedRectBezier", file=self.tty)
         d = self._svg.roundedRectBezier(x, y, w, h, rx, ry)
         self._svg.getPathVertices(d, node, mat, self.smoothness)
 
@@ -217,7 +218,7 @@ class InkSvg():
     #    print(svg.pathgen.path)
 
     """
-    __version__ = "1.7c"
+    __version__ = "1.7e"
     DEFAULT_WIDTH = 100
     DEFAULT_HEIGHT = 100
 
@@ -373,7 +374,7 @@ class InkSvg():
         for sub in p:
             idash = 0
             dash = dashes[0]
-            # print("initial dash length: ", dash, dashoffset)
+            # print("initial dash length: ", dash, dashoffset, file=self.tty)
             dash = dash - dashoffset
             length = 0
             new.append([sub[0][:]])
@@ -554,7 +555,7 @@ class InkSvg():
         return v, u
 
 
-    def __init__(self, document=None, svgfile=None, smoothness=0.2, pathgen=LinearPathGen(smoothness=0.2)):
+    def __init__(self, document=None, svgfile=None, smoothness=0.2, debug=False, pathgen=LinearPathGen(smoothness=0.2)):
         """
         Usage: ...
         """
@@ -562,6 +563,13 @@ class InkSvg():
         self.px_used = False            # raw px unit depends on correct dpi.
         self.xmin, self.xmax = (1.0E70, -1.0E70)
         self.ymin, self.ymax = (1.0E70, -1.0E70)
+
+        try:
+            if debug == False: raise ValueError('intentional exception')
+            self.tty = open("/dev/tty", 'w')
+        except:
+            from os import devnull
+            self.tty = open(devnull, 'w')  # '/dev/null' for POSIX, 'nul' for Windows.
 
         # CAUTION: smoothness here is deprecated. it belongs into pathgen, if.
         # CAUTION: smoothness == 0.0 leads to a busy-loop.
